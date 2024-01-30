@@ -2,7 +2,7 @@ use std::env;
 
 fn func(x: f64) -> f64 {
 
-    let out = x * x;
+    let out: f64 = x.sinh();
 
     out
 }
@@ -61,7 +61,7 @@ fn main() {
         for i in 0..(x_max-x_min + 1) {
             let y = ( func((x_min + i) as f64 * x_scale) / y_scale ).round() as i64;
             if y <= y_max && y >= y_min {
-                graph[((y_max - y) as f64/y_scale).round() as usize][i as usize] = '•';
+                graph[((y_max - y) as f64).round() as usize][i as usize] = '•';
             }
         }
 
