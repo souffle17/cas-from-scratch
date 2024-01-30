@@ -1,8 +1,8 @@
 use std::env;
 
 fn func(x: i64) -> i64 {
-    //let out = (10.0 * (x as f64 / 5.0).sin()).round() as i64;
-    let out = x;
+    let out = (10.0 * (x as f64 / 5.0).sin()).round() as i64;
+
     out
 }
 
@@ -19,43 +19,47 @@ fn main() {
         let y_max = str::parse::<i64>(&input[4]).unwrap();
 
         
-        let mut graph: Vec<char> = Vec::new();
+        let mut graph: Vec<Vec<char>> = Vec::new();
 
         //coordinate axis
-        for i in (y_min..y_max).rev() {
-            for j in x_min..x_max {
+        for i in (y_min..y_max + 1).rev() {
+            let mut row: Vec<char> = Vec::new();
+            for j in x_min..x_max + 1 {
                 if i != 0 {
                     if j != 0 {
-                        graph.push(' ');
+                        row.push(' ');
                     }
                     else {
-                        graph.push('|');
+                        row.push('|');
                     }
                 }
                 else {
                     if j == 0 {
-                        graph.push('+');
+                        row.push('+');
                     }
                     else {
-                        graph.push('-');
+                        row.push('-');
                     }
                 }
             }
-            graph.push('\n');
+            graph.push(row);
         }
 
 
-        for i in x_min..x_max {
-            let y = func(i);
+        for i in 0..(x_max-x_min) {
+            let y = func(x_min + i);
             if y <= y_max && y >= y_min {
-                graph[((y_max - y) * ((x_max - x_min ))) as usize] = '•';
+                graph[(y_max - y) as usize][i as usize] = '•';
             }
         }
 
 
         let mut output: String = String::new();
-        for char in graph {
-            output.push(char);
+        for row in graph {
+            for char in row {
+                output.push(char);
+            }
+            output.push('\n');
         }
 
         println!("{}", output);
