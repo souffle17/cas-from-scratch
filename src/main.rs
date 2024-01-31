@@ -2,7 +2,7 @@ use std::env;
 
 fn func(x: f64) -> f64 {
 
-    let out: f64 = x.sinh();
+    let out: f64 = x*x;
 
     out
 }
@@ -14,24 +14,37 @@ fn main() {
         println!("Enter four or six arguments for the min and max on the x and y axis respectively, then optionally the x scale and y scale");
     }
     else {
-        let x_min = str::parse::<i64>(&input[1]).unwrap();
-        let x_max = str::parse::<i64>(&input[2]).unwrap();
-        let y_min = str::parse::<i64>(&input[3]).unwrap();
-        let y_max = str::parse::<i64>(&input[4]).unwrap();
+        let x_min_in = str::parse::<f64>(&input[1]);
+        let x_max_in = str::parse::<f64>(&input[2]);
+        let y_min_in = str::parse::<f64>(&input[3]);
+        let y_max_in = str::parse::<f64>(&input[4]);
         let mut x_scale = 1.0;
         let mut y_scale = 1.0;
         if input.len() == 7 {
-            x_scale = str::parse::<f64>(&input[5]).unwrap();
-            y_scale = str::parse::<f64>(&input[6]).unwrap();
+            let x_scale_in = str::parse::<f64>(&input[5]);
+            let y_scale_in = str::parse::<f64>(&input[6]);
+
+            if y_scale_in.is_err() || x_scale_in.is_err() {
+                panic!("Not a number")
+            }
+
+            x_scale = x_scale_in.unwrap();
+            y_scale = y_scale_in.unwrap();
         }
+        
+        if x_min_in.is_err() || x_max_in.is_err() || y_min_in.is_err() || y_max_in.is_err() {
+            panic!("Not a number")
+        }
+
+
 
         
         let mut graph: Vec<Vec<char>> = Vec::new();
 
-        let x_min = (x_min as f64 / x_scale).round() as i64;
-        let x_max = (x_max as f64 / x_scale).round() as i64;
-        let y_min = (y_min as f64 / y_scale).round() as i64;
-        let y_max = (y_max as f64 / y_scale).round() as i64;
+        let x_min = (x_min_in.unwrap() as f64 / x_scale).round() as i64;
+        let x_max = (x_max_in.unwrap() as f64 / x_scale).round() as i64;
+        let y_min = (y_min_in.unwrap() as f64 / y_scale).round() as i64;
+        let y_max = (y_max_in.unwrap() as f64 / y_scale).round() as i64;
 
         //coordinate axis
         for i in (y_min..y_max + 1).rev() {
