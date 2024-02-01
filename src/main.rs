@@ -1,9 +1,13 @@
 use std::env;
 
-fn func(x: f64) -> f64 {
-    let out: f64 = 1.0 / x;
-
-    out
+fn func(x: f64, y:f64, err:f64) -> bool {
+    (
+        (
+            y.tan() // place equation half here
+        ) - (
+            x.sin() // place equation half here
+        )
+    ).abs() < err
 }
 
 fn main() {
@@ -91,14 +95,14 @@ fn main() {
             }
             graph.push(row);
         }
-
-        for i in 0..(x_max - x_min + 1) {
-            let y = (func((x_min + i) as f64 * x_scale) / y_scale).round() as i64;
-            if y <= y_max && y >= y_min {
-                graph[((y_max - y) as f64).round() as usize][i as usize] = '•';
+        
+        for i in y_min..(y_max + 1) {
+            for j in x_min..(x_max + 1) {
+                if func(j as f64 * x_scale, i as f64 * y_scale, x_scale.min(y_scale)) {
+                    graph[(y_max - i) as usize][(j - x_min) as usize] = '•';
+                }
             }
         }
-
         let mut output: String = String::new();
         for row in graph {
             for char in row {
