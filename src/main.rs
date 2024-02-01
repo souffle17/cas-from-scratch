@@ -10,7 +10,8 @@ fn main() {
     let input: Vec<String> = env::args().collect();
 
     if input.len() != 7 && input.len() != 5 {
-        println!("Enter four or six arguments for the min and max on the x and y axis respectively, then optionally the x scale and y scale");
+        println!("Enter four or six arguments for the min and max on the x and y axis respectively, then optionally the x scale and y scale.");
+        println!("Defaults are -10, 10, -10, 10, 1, 1");
     } else {
         let x_min_in = str::parse::<f64>(&input[1]);
         let x_max_in = str::parse::<f64>(&input[2]);
@@ -18,28 +19,59 @@ fn main() {
         let y_max_in = str::parse::<f64>(&input[4]);
         let mut x_scale = 1.0;
         let mut y_scale = 1.0;
+
         if input.len() == 7 {
             let x_scale_in = str::parse::<f64>(&input[5]);
             let y_scale_in = str::parse::<f64>(&input[6]);
 
-            if y_scale_in.is_err() || x_scale_in.is_err() {
-                panic!("Not a number")
-            }
-
-            x_scale = x_scale_in.unwrap();
-            y_scale = y_scale_in.unwrap();
+            
+            match x_scale_in {
+                Ok(_f64) => x_scale = x_scale_in.unwrap(),
+                _ => {
+                    println!("invalid x scale, using default"); 
+                },
+            };
+            match y_scale_in {
+                Ok(_f64) => y_scale = y_scale_in.unwrap(),
+                _ => {
+                    println!("invalid y scale, using default"); 
+                },
+            };
         }
 
-        if x_min_in.is_err() || x_max_in.is_err() || y_min_in.is_err() || y_max_in.is_err() {
-            panic!("Not a number")
-        }
+        let x_min = match x_min_in {
+            Ok(_f64) => (x_min_in.unwrap() / x_scale).round() as i64,
+            _ => {
+                println!("invalid x min, using default"); 
+                -10
+            },
+        };
+        
+        let x_max = match x_max_in {
+            Ok(_f64) => (x_max_in.unwrap() / x_scale).round() as i64,
+            _ => {
+                println!("invalid x max, using default"); 
+                10
+            },
+        };
+
+        let y_min = match y_min_in {
+            Ok(_f64) => (y_min_in.unwrap() / y_scale).round() as i64,
+            _ => {
+                println!("invalid y min, using default"); 
+                -10
+            },
+        };
+        
+        let y_max = match y_max_in {
+            Ok(_f64) => (y_max_in.unwrap() / y_scale).round() as i64,
+            _ => {
+                println!("invalid y max, using default"); 
+                10
+            },
+        };
 
         let mut graph: Vec<Vec<char>> = Vec::new();
-
-        let x_min = (x_min_in.unwrap() as f64 / x_scale).round() as i64;
-        let x_max = (x_max_in.unwrap() as f64 / x_scale).round() as i64;
-        let y_min = (y_min_in.unwrap() as f64 / y_scale).round() as i64;
-        let y_max = (y_max_in.unwrap() as f64 / y_scale).round() as i64;
 
         //coordinate axis
         for i in (y_min..y_max + 1).rev() {
