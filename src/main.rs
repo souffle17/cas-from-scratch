@@ -31,13 +31,13 @@ fn main() {
             
             match x_scale_in {
                 Ok(_f64) => x_scale = x_scale_in.unwrap(),
-                _ => {
+                Err(_) => {
                     println!("invalid x scale, using default"); 
                 },
             };
             match y_scale_in {
                 Ok(_f64) => y_scale = y_scale_in.unwrap(),
-                _ => {
+                Err(_) => {
                     println!("invalid y scale, using default"); 
                 },
             };
@@ -45,7 +45,7 @@ fn main() {
 
         let x_min = match x_min_in {
             Ok(_f64) => (x_min_in.unwrap() / x_scale).round() as i64,
-            _ => {
+            Err(_) => {
                 println!("invalid x min, using default"); 
                 -10
             },
@@ -53,7 +53,7 @@ fn main() {
         
         let x_max = match x_max_in {
             Ok(_f64) => (x_max_in.unwrap() / x_scale).round() as i64,
-            _ => {
+            Err(_) => {
                 println!("invalid x max, using default"); 
                 10
             },
@@ -61,7 +61,7 @@ fn main() {
 
         let y_min = match y_min_in {
             Ok(_f64) => (y_min_in.unwrap() / y_scale).round() as i64,
-            _ => {
+            Err(_) => {
                 println!("invalid y min, using default"); 
                 -10
             },
@@ -69,7 +69,7 @@ fn main() {
         
         let y_max = match y_max_in {
             Ok(_f64) => (y_max_in.unwrap() / y_scale).round() as i64,
-            _ => {
+            Err(_) => {
                 println!("invalid y max, using default"); 
                 10
             },
