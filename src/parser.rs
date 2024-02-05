@@ -7,7 +7,7 @@ fn num_next(input: &str, x: f64, y: f64) -> f64 {
 
     let mut index_start = 0;
 
-    if input.starts_with('_') {
+    if input.starts_with('-') {
         negative = -1.0;
         index_start = 1;
     }
@@ -18,7 +18,7 @@ fn num_next(input: &str, x: f64, y: f64) -> f64 {
         y * negative
     }
     else if str::parse::<f64>(input).is_ok() {
-        str::parse::<f64>(input).unwrap() * negative
+        str::parse::<f64>(input).unwrap()
     }
     else {
         f64::NAN
@@ -56,43 +56,48 @@ fn generate_single(input: VecDeque<String>, x: f64, y: f64) -> (Option<NumberNod
 
     input.pop_front();
 
-    match input.front().unwrap().chars().next().unwrap() {
-        's' | 'c' | 't' | 'a' | 'q' => {
-            let (node, input) = generate_single(input, x, y);
-            (Some(
-                NumberNode::new(
-                    Some(Box::new(NumberOrOperation::Single(node))), op
-                )
-            ), input
-        )
+    if input.front().is_none() || input.front().unwrap().chars().next().is_none() {
+        (None, input)
     }
-        ,
-            
-        '+' | '-' | '*' | '/' | 'l' | 'e' => {
-            let (node, input) = generate_double(input, x, y);
-            (Some(
-            NumberNode::new(
-                Some(Box::new(NumberOrOperation::Double(node))), op
-            )
-        ), input)
-    },
-        _ => {
-
-            let number = num_next(input.front().unwrap(), x, y);
-
-            input.pop_front();
-            
-            if number.is_nan() {
-                (None, input)
-            }
-            else {
-                (
-                    Some(
+    else {
+        match input.front().unwrap().chars().next().unwrap() {
+            's' | 'c' | 't' | 'a' | 'q' => {
+                let (node, input) = generate_single(input, x, y);
+                (Some(
                     NumberNode::new(
-                        Some(Box::new(NumberOrOperation::Number(number))), None
-                        )
-                    ), input
+                        Some(Box::new(NumberOrOperation::Single(node))), op
+                    )
+                ), input
+            )
+        }
+            ,
+                
+            '+' | '-' | '*' | '/' | 'l' | 'e' => {
+                let (node, input) = generate_double(input, x, y);
+                (Some(
+                NumberNode::new(
+                    Some(Box::new(NumberOrOperation::Double(node))), op
                 )
+            ), input)
+        },
+            _ => {
+
+                let number = num_next(input.front().unwrap(), x, y);
+
+                input.pop_front();
+                
+                if number.is_nan() {
+                    (None, input)
+                }
+                else {
+                    (
+                        Some(
+                        NumberNode::new(
+                            Some(Box::new(NumberOrOperation::Number(number))), None
+                            )
+                        ), input
+                    )
+                }
             }
         }
     }
@@ -105,91 +110,106 @@ fn generate_double(input: VecDeque<String>, x: f64, y: f64) -> (Option<EquationN
 
     input.pop_front();
 
-    let (a, mut input) = match input.front().unwrap().chars().next().unwrap() {
-        's' | 'c' | 't' | 'a' | 'q' => generate_single(input, x, y),
-            
-        '+' | '-' | '*' | '/' | 'l' | 'e' => generate(input, x, y),
-        _ => {
+    if input.front().is_none() || input.front().unwrap().chars().next().is_none() {
+        (None, input)
+    }
+    else {
+        let (a, mut input) = match input.front().unwrap().chars().next().unwrap() {
+            's' | 'c' | 't' | 'a' | 'q' => generate_single(input, x, y),
+                
+            '+' | '-' | '*' | '/' | 'l' | 'e' => generate(input, x, y),
+            _ => {
 
-            let number = num_next(input.front().unwrap(), x, y);
+                let number = num_next(input.front().unwrap(), x, y);
 
-            input.pop_front();
-            
-            if number.is_nan() {
-                (None, input)
+                input.pop_front();
+                
+                if number.is_nan() {
+                    (None, input)
+                }
+                else {
+                    (
+                        Some(
+                        NumberNode::new(
+                            Some(Box::new(NumberOrOperation::Number(number))), None
+                            )
+                        ), input
+                    )
+                }
             }
-            else {
-                (
-                    Some(
-                    NumberNode::new(
-                        Some(Box::new(NumberOrOperation::Number(number))), None
-                        )
-                    ), input
-                )
-            }
+        };
+
+        if input.front().is_none() || input.front().unwrap().chars().next().is_none() {
+            (None, input)
         }
-    };
+        else {
+            let (b, input) = match input.front().unwrap().chars().next().unwrap() {
+                's' | 'c' | 't' | 'a' | 'q' => generate_single(input, x, y),
+                    
+                '+' | '-' | '*' | '/' | 'l' | 'e' => generate(input, x, y),
 
-    let (b, input) = match input.front().unwrap().chars().next().unwrap() {
-        's' | 'c' | 't' | 'a' | 'q' => generate_single(input, x, y),
-            
-        '+' | '-' | '*' | '/' | 'l' | 'e' => generate(input, x, y),
+                _ => {
 
-        _ => {
+                    let number = num_next(input.front().unwrap(), x, y);
 
-            let number = num_next(input.front().unwrap(), x, y);
-
-            input.pop_front();
-            
-            if number.is_nan() {
-                (None, input)
-            }
-            else {
-                (
-                    Some(
-                    NumberNode::new(
-                        Some(Box::new(NumberOrOperation::Number(number))), None
+                    input.pop_front();
+                    
+                    if number.is_nan() {
+                        (None, input)
+                    }
+                    else {
+                        (
+                            Some(
+                            NumberNode::new(
+                                Some(Box::new(NumberOrOperation::Number(number))), None
+                                )
+                            ), input
                         )
-                    ), input
-                )
-            }
-        }
-    };
+                    }
+                }
+            };
 
-    (Some(EquationNode::new(a, op, b)), input)
+            (Some(EquationNode::new(a, op, b)), input)
+        }
+    }
 }
 
 fn generate(input: VecDeque<String>, x: f64, y: f64) -> (Option<NumberNode>, VecDeque<String>) {
 
-    match input.front().unwrap().chars().next().unwrap() {
-        's' | 'c' | 't' | 'a' | 'q' => generate_single(input, x, y),
-        '+' | '-' | '*' | '/' | 'l' | 'e' => {
-            let (node, input) = generate_double(input, x, y);
-            (Some(
-            NumberNode::new(
-                Some(Box::new(NumberOrOperation::Double(node))), None
-            )
-        ), input)
-        },
-        _ => {
-
-            let number = num_next(input.front().unwrap(), x, y);
-
-            let mut input = input.clone();
-
-            input.pop_front();
-            
-            if number.is_nan() {
-                (None, input)
-            }
-            else {
-                (
-                    Some(
-                    NumberNode::new(
-                        Some(Box::new(NumberOrOperation::Number(number))), None
-                        )
-                    ), input
+    if input.front().is_none() || input.front().unwrap().chars().next().is_none() {
+        (None, input)
+    }
+    else {
+        match input.front().unwrap().chars().next().unwrap() {
+            's' | 'c' | 't' | 'a' | 'q' => generate_single(input, x, y),
+            '+' | '-' | '*' | '/' | 'l' | 'e' => {
+                let (node, input) = generate_double(input, x, y);
+                (Some(
+                NumberNode::new(
+                    Some(Box::new(NumberOrOperation::Double(node))), None
                 )
+            ), input)
+            },
+            _ => {
+
+                let number = num_next(input.front().unwrap(), x, y);
+
+                let mut input = input.clone();
+
+                input.pop_front();
+                
+                if number.is_nan() {
+                    (None, input)
+                }
+                else {
+                    (
+                        Some(
+                        NumberNode::new(
+                            Some(Box::new(NumberOrOperation::Number(number))), None
+                            )
+                        ), input
+                    )
+                }
             }
         }
     }
