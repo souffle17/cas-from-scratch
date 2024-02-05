@@ -2,7 +2,7 @@
 
 A very rough CLI grapher in rust.
 
-This program will print a graph in the command line, with user provided arguments for the range and scale of the axis, and a user provided equation in prefix notation.
+This program will print a graph in the command line, with user provided arguments for the range and scale of the axis, and two halves of a user provided equation in prefix notation.
 
 - s = sin
 - c = cps
@@ -11,7 +11,6 @@ This program will print a graph in the command line, with user provided argument
 - q = sqrt
 - l = log
 - e = exp
-- use _ for negative numbers
 
 ## Example
 [https://en.wikipedia.org/wiki/Rose_(mathematics)](https://en.wikipedia.org/wiki/Rose_(mathematics))
