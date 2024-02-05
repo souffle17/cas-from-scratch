@@ -19,7 +19,7 @@ fn main() {
         let mut x_scale = 1.0;
         let mut y_scale = 1.0;
 
-        if input.len() == 7 {
+        if input.len() == 9 {
             let x_scale_in = str::parse::<f64>(&input[7]);
             let y_scale_in = str::parse::<f64>(&input[8]);
 

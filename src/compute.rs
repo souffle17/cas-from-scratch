@@ -71,12 +71,17 @@ impl NumberNode {
                     f64::NAN
                 }
                 else {
-                    match self.operation.as_ref().unwrap() {
-                        SingleOperation::Sin => x.sin(),
-                        SingleOperation::Cos => x.cos(),
-                        SingleOperation::Tan => x.tan(),
-                        SingleOperation::Abs => x.abs(),
-                        SingleOperation::Sqrt => x.sqrt()
+                    match self.operation.as_ref() {
+                        Some(o) => {
+                            match o {
+                                SingleOperation::Sin => x.sin(),
+                                SingleOperation::Cos => x.cos(),
+                                SingleOperation::Tan => x.tan(),
+                                SingleOperation::Abs => x.abs(),
+                                SingleOperation::Sqrt => x.sqrt()
+                            }
+                        }
+                        None => x
                     }
                 }
             }
