@@ -17,22 +17,22 @@ pub enum SingleOperation{
     Sqrt
 }
 
-pub enum NumberOrOperation<'a> {
-    Double(Option<&'a EquationNode<'a>>),
-    Single(Option<&'a NumberNode<'a>>),
+pub enum NumberOrOperation {
+    Double(Option<EquationNode>),
+    Single(Option<NumberNode>),
     Number(f64)
 }
 
 // setting up the equation as a tree of operations
-pub struct NumberNode<'a> {
-    value: Option<NumberOrOperation<'a>>,
+pub struct NumberNode {
+    value: Option<Box<NumberOrOperation>>,
     operation: Option<SingleOperation>
 }
 
-pub struct EquationNode<'a> {
-    first_operand: NumberNode<'a>,
+pub struct EquationNode {
+    first_operand: Option<NumberNode>,
     operation: DualOperation,
-    second_operand: NumberNode<'a>
+    second_operand: Option<NumberNode>
 }
 
 fn enum_compute_dual(a: f64, b: f64, o: &DualOperation) -> f64 {
@@ -46,13 +46,13 @@ fn enum_compute_dual(a: f64, b: f64, o: &DualOperation) -> f64 {
     }
 }
 
-impl NumberNode<'_> {
+impl NumberNode {
     // resolve the equation into a number (or not a number)
     pub fn resolve(&self) -> f64 {
         match self.value {
             Some(_) => {
-                let x: f64 = match self.value.unwrap() {
-                    NumberOrOperation::Double(o) => {
+                let x: f64 = match self.value.as_ref().unwrap().as_ref() {
+                    NumberOrOperation::Double (o) => {
                         match o {
                             Some(op) => op.resolve(),
                             None => f64::NAN
@@ -64,21 +64,19 @@ impl NumberNode<'_> {
                             None => f64::NAN
                         }
                     }
-                    NumberOrOperation::Number(n) => n
+                    NumberOrOperation::Number(n) => *n
                 };
 
                 if x.is_nan() {
                     f64::NAN
                 }
                 else {
-                    match &self.operation {
-                        Sin => x.sin(),
-                        Cos => x.cos(),
-                        Tan => x.tan(),
-                        Ln => x.ln(),
-                        Abs => x.abs(),
-                        Sqrt => x.sqrt(),
-                        _ => x
+                    match self.operation.as_ref().unwrap() {
+                        SingleOperation::Sin => x.sin(),
+                        SingleOperation::Cos => x.cos(),
+                        SingleOperation::Tan => x.tan(),
+                        SingleOperation::Abs => x.abs(),
+                        SingleOperation::Sqrt => x.sqrt()
                     }
                 }
             }
@@ -86,7 +84,7 @@ impl NumberNode<'_> {
         }
     }
 
-    pub fn new(value: Option<NumberOrOperation>, operation: Option<SingleOperation>) -> Self {
+    pub fn new(value: Option<Box<NumberOrOperation>>, operation: Option<SingleOperation>) -> Self {
         Self {
             value, 
             operation
@@ -94,18 +92,22 @@ impl NumberNode<'_> {
     }
 }
 
-impl EquationNode<'_> {
+impl EquationNode {
     // resolve the operation into a number (or not a number)
     fn resolve(&self) -> f64 {
+        if self.first_operand.is_none() || self.second_operand.is_none() {
+            f64::NAN
+        }
+        else {
+            let a: f64 = self.first_operand.as_ref().unwrap().resolve();
 
-        let a: f64 = self.first_operand.resolve();
+            let b: f64 = self.second_operand.as_ref().unwrap().resolve();
 
-        let b: f64 = self.second_operand.resolve();
-
-        enum_compute_dual(a, b, &self.operation)
+            enum_compute_dual(a, b, &self.operation)
+        }
     }
 
-    pub fn new(first_operand: NumberNode<'_>, operation: DualOperation, second_operand: NumberNode<'_>) -> Self {
+    pub fn new(first_operand: Option<NumberNode>, operation: DualOperation, second_operand: Option<NumberNode>) -> Self {
         Self {
             first_operand,
             operation,

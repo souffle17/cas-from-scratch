@@ -2,20 +2,10 @@ use std::env;
 mod compute;
 mod parser;
 
-fn func(x: f64, y: f64, err: f64) -> bool {
-    (
-        (
-            y.tan() // place equation half here
-        ) - (
-            x.sin() // place equation half here
-        )
-    ).abs() < err
-}
-
 fn main() {
     let input: Vec<String> = env::args().collect();
 
-    if input.len() != 7 && input.len() != 5 {
+    if input.len() != 9 && input.len() != 7 {
         println!("Enter six or eight arguments for the min and max on the x and y axis respectively, the two halves of the equation, then optionally the x scale and y scale.");
         println!("Defaults for the axis are -10, 10, -10, 10, 1, 1");
         println!("Equations must be in prefix notation, seperated by spaces");
