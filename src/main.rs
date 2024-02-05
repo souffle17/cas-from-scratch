@@ -1,32 +1,27 @@
 use std::env;
-
-fn func(x: f64, y:f64, err:f64) -> bool {
-    (
-        (
-            y.tan() // place equation half here
-        ) - (
-            x.sin() // place equation half here
-        )
-    ).abs() < err
-}
+mod compute;
+mod parser;
 
 fn main() {
     let input: Vec<String> = env::args().collect();
 
-    if input.len() != 7 && input.len() != 5 {
-        println!("Enter four or six arguments for the min and max on the x and y axis respectively, then optionally the x scale and y scale.");
-        println!("Defaults are -10, 10, -10, 10, 1, 1");
+    if input.len() != 9 && input.len() != 7 {
+        println!("Enter six or eight arguments for the min and max on the x and y axis respectively, the two halves of the equation, then optionally the x scale and y scale.");
+        println!("Defaults for the axis are -10, 10, -10, 10, 1, 1");
+        println!("Equations must be in prefix notation, seperated by spaces");
     } else {
         let x_min_in = str::parse::<f64>(&input[1]);
         let x_max_in = str::parse::<f64>(&input[2]);
         let y_min_in = str::parse::<f64>(&input[3]);
         let y_max_in = str::parse::<f64>(&input[4]);
+        let left_side = &input[5];
+        let right_side = &input[6];
         let mut x_scale = 1.0;
         let mut y_scale = 1.0;
 
-        if input.len() == 7 {
-            let x_scale_in = str::parse::<f64>(&input[5]);
-            let y_scale_in = str::parse::<f64>(&input[6]);
+        if input.len() == 9 {
+            let x_scale_in = str::parse::<f64>(&input[7]);
+            let y_scale_in = str::parse::<f64>(&input[8]);
 
             
             match x_scale_in {
@@ -98,7 +93,7 @@ fn main() {
         
         for i in y_min..(y_max + 1) {
             for j in x_min..(x_max + 1) {
-                if func(j as f64 * x_scale, i as f64 * y_scale, x_scale.min(y_scale)) {
+                if parser::point_check(left_side, right_side, j as f64 * x_scale, i as f64 * y_scale, x_scale.min(y_scale)) {
                     graph[(y_max - i) as usize][(j - x_min) as usize] = '•';
                 }
             }
