@@ -1,3 +1,4 @@
+// operations that need two numbers
 pub enum DualOperation {
     Plus,
     Minus,
@@ -7,6 +8,7 @@ pub enum DualOperation {
     Exp
 }
 
+// operations that need one number
 pub enum SingleOperation{
     Sin,
     Cos,
@@ -21,13 +23,12 @@ pub enum NumberOrOperation<'a> {
     Number(f64)
 }
 
-// for single operations
+// setting up the equation as a tree of operations
 pub struct NumberNode<'a> {
     value: Option<NumberOrOperation<'a>>,
     operation: Option<SingleOperation>
 }
 
-// setting up the equation as a tree of operations
 pub struct EquationNode<'a> {
     first_operand: NumberNode<'a>,
     operation: DualOperation,
@@ -46,6 +47,7 @@ fn enum_compute_dual(a: f64, b: f64, o: &DualOperation) -> f64 {
 }
 
 impl NumberNode<'_> {
+    // resolve the equation into a number (or not a number)
     pub fn resolve(&self) -> f64 {
         match self.value {
             Some(_) => {
@@ -93,7 +95,7 @@ impl NumberNode<'_> {
 }
 
 impl EquationNode<'_> {
-    // resolve the equation into a number (or not a number)
+    // resolve the operation into a number (or not a number)
     fn resolve(&self) -> f64 {
 
         let a: f64 = self.first_operand.resolve();
