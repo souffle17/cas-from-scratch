@@ -13,7 +13,7 @@ fn draw_iter(left_side: &NumberNode, right_side: &NumberNode, x: f64, y: f64, x_
     let x = x - (x_scale / 2.0);
     let y = y - (y_scale / 2.0);
 
-    let err = ((x*x_scale).powi(2) + (y*y_scale).powi(2)).sqrt() * x_scale.max(y_scale);
+    let err = ((x*x_scale).powi(2) + (y*y_scale).powi(2)) * x_scale.max(y_scale);
 
     let mut correct = false;
     for i in 0..iterations {
