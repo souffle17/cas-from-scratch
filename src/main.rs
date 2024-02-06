@@ -2,6 +2,20 @@ use std::env;
 mod compute;
 mod parser;
 
+fn draw_iter(left_side: &str, right_side: &str, x: f64, y: f64, x_scale: f64, y_scale: f64) -> bool {
+    let x_diff = x_scale / 2.5;
+    let y_diff = y_scale / 2.5;
+    parser::point_check(left_side, right_side, x, y, x_scale.max(y_scale)) ||
+        parser::point_check(left_side, right_side, x, y+y_diff, x_scale.max(y_scale)) || 
+            parser::point_check(left_side, right_side, x, y-y_diff, x_scale.max(y_scale)) ||
+    parser::point_check(left_side, right_side, x+x_diff, y, x_scale.max(y_scale)) ||
+        parser::point_check(left_side, right_side, x+x_diff, y+y_diff, x_scale.max(y_scale)) || 
+            parser::point_check(left_side, right_side, x+x_diff, y-y_diff, x_scale.max(y_scale)) ||
+    parser::point_check(left_side, right_side, x-x_diff, y, x_scale.max(y_scale)) ||
+        parser::point_check(left_side, right_side, x-x_diff, y+y_diff, x_scale.max(y_scale)) || 
+            parser::point_check(left_side, right_side, x-x_diff, y-y_diff, x_scale.max(y_scale))
+}
+
 fn main() {
     let input: Vec<String> = env::args().collect();
 
@@ -93,7 +107,7 @@ fn main() {
         
         for i in y_min..(y_max + 1) {
             for j in x_min..(x_max + 1) {
-                if parser::point_check(left_side, right_side, j as f64 * x_scale, i as f64 * y_scale, x_scale.max(y_scale)) {
+                if draw_iter(left_side, right_side, j as f64 * x_scale, i as f64 * y_scale,  x_scale, y_scale) {
                     graph[(y_max - i) as usize][(j - x_min) as usize] = '•';
                 }
             }
