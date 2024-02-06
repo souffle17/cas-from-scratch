@@ -1,11 +1,11 @@
 # rough-grapher
 
-A very rough CLI grapher in rust.
+A CLI grapher in rust.
 
 This program will print a graph in the command line, with user provided arguments for the range and scale of the axis, and two halves of a user provided equation in prefix notation.
 
 - s = sin
-- c = cps
+- c = cos
 - t = tan
 - a = abs
 - q = sqrt
