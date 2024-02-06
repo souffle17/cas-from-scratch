@@ -93,7 +93,7 @@ fn main() {
         
         for i in y_min..(y_max + 1) {
             for j in x_min..(x_max + 1) {
-                if parser::point_check(left_side, right_side, j as f64 * x_scale, i as f64 * y_scale, x_scale.min(y_scale)) {
+                if parser::point_check(left_side, right_side, j as f64 * x_scale, i as f64 * y_scale, x_scale.max(y_scale)) {
                     graph[(y_max - i) as usize][(j - x_min) as usize] = '•';
                 }
             }

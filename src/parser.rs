@@ -7,7 +7,7 @@ fn num_next(input: &str, x: f64, y: f64) -> f64 {
 
     let mut index_start = 0;
 
-    if input.starts_with('-') {
+    if input.starts_with('_') {
         negative = -1.0;
         index_start = 1;
     }
@@ -17,8 +17,8 @@ fn num_next(input: &str, x: f64, y: f64) -> f64 {
     else if input.chars().nth(index_start) == Some('y') {
         y * negative
     }
-    else if str::parse::<f64>(input).is_ok() {
-        str::parse::<f64>(input).unwrap()
+    else if str::parse::<f64>(&input[index_start..]).is_ok() {
+        str::parse::<f64>(&input[index_start..]).unwrap() * negative 
     }
     else {
         f64::NAN
@@ -49,7 +49,6 @@ fn double_operation_match(c: char) -> Option<DualOperation> {
 }
 
 fn generate_single(input: VecDeque<String>, x: f64, y: f64) -> (Option<NumberNode>, VecDeque<String>) {
-
     let op = single_operation_match(input.front().unwrap().chars().next().unwrap());
 
     let mut input = input.clone();
