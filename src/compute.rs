@@ -1,4 +1,5 @@
 // operations that need two numbers
+#[derive(Debug)]
 pub enum DualOperation {
     Plus,
     Minus,
@@ -9,6 +10,7 @@ pub enum DualOperation {
 }
 
 // operations that need one number
+#[derive(Debug)]
 pub enum SingleOperation{
     Sin,
     Cos,
@@ -17,18 +19,31 @@ pub enum SingleOperation{
     Sqrt
 }
 
+#[derive(Debug)]
 pub enum NumberOrOperation {
     Double(Option<EquationNode>),
     Single(Option<NumberNode>),
-    Number(f64)
+    Number(ConstantOrVariable)
+}
+
+#[derive(Debug)]
+pub enum ConstantOrVariable {
+    Constant(f64),
+    XVariable,
+    NegativeXVariable,
+    YVariable,
+    NegativeYVariable,
+    Nan
 }
 
 // setting up the equation as a tree of operations
+#[derive(Debug)]
 pub struct NumberNode {
     value: Option<Box<NumberOrOperation>>,
     operation: Option<SingleOperation>
 }
 
+#[derive(Debug)]
 pub struct EquationNode {
     first_operand: Option<NumberNode>,
     operation: DualOperation,
@@ -48,40 +63,49 @@ fn enum_compute_dual(a: f64, b: f64, o: &DualOperation) -> f64 {
 
 impl NumberNode {
     // resolve the equation into a number (or not a number)
-    pub fn resolve(&self) -> f64 {
+    pub fn resolve(&self, x: f64, y: f64) -> f64 {
         match self.value {
             Some(_) => {
-                let x: f64 = match self.value.as_ref().unwrap().as_ref() {
+                let n = match self.value.as_ref().unwrap().as_ref() {
                     NumberOrOperation::Double (o) => {
                         match o {
-                            Some(op) => op.resolve(),
+                            Some(op) => op.resolve(x, y),
                             None => f64::NAN
-                        }
+                       }
                     },
                     NumberOrOperation::Single(o) => {
                         match o {
-                            Some(op) => op.resolve(),
+                            Some(op) => op.resolve(x, y),
                             None => f64::NAN
                         }
                     }
-                    NumberOrOperation::Number(n) => *n
+                    NumberOrOperation::Number(number) => {
+                        match number {
+                            ConstantOrVariable::Constant(c) => *c,
+                            ConstantOrVariable::XVariable => x,
+                            ConstantOrVariable::NegativeXVariable => -1.0 * x,
+                            ConstantOrVariable::YVariable => y,
+                            ConstantOrVariable::NegativeYVariable => -1.0 * y,
+                            ConstantOrVariable::Nan => f64::NAN
+                        }
+                    }
                 };
 
-                if x.is_nan() {
+                if n.is_nan() {
                     f64::NAN
                 }
                 else {
                     match self.operation.as_ref() {
                         Some(o) => {
                             match o {
-                                SingleOperation::Sin => x.sin(),
-                                SingleOperation::Cos => x.cos(),
-                                SingleOperation::Tan => x.tan(),
-                                SingleOperation::Abs => x.abs(),
-                                SingleOperation::Sqrt => x.sqrt()
+                                SingleOperation::Sin => n.sin(),
+                                SingleOperation::Cos => n.cos(),
+                                SingleOperation::Tan => n.tan(),
+                                SingleOperation::Abs => n.abs(),
+                                SingleOperation::Sqrt => n.sqrt()
                             }
                         }
-                        None => x
+                        None => n
                     }
                 }
             }
@@ -99,14 +123,14 @@ impl NumberNode {
 
 impl EquationNode {
     // resolve the operation into a number (or not a number)
-    fn resolve(&self) -> f64 {
+    fn resolve(&self, x: f64, y: f64) -> f64 {
         if self.first_operand.is_none() || self.second_operand.is_none() {
             f64::NAN
         }
         else {
-            let a: f64 = self.first_operand.as_ref().unwrap().resolve();
+            let a: f64 = self.first_operand.as_ref().unwrap().resolve(x, y);
 
-            let b: f64 = self.second_operand.as_ref().unwrap().resolve();
+            let b: f64 = self.second_operand.as_ref().unwrap().resolve(x, y);
 
             enum_compute_dual(a, b, &self.operation)
         }
@@ -119,4 +143,22 @@ impl EquationNode {
             second_operand
         }
     }
+}
+
+pub fn point_check(left_expression: Option<&NumberNode>, right_expression: Option<&NumberNode>, x: f64, y: f64, err: f64) -> bool {
+
+    if left_expression.is_none() || right_expression.is_none() {
+        false
+    }
+    else {
+        let left = left_expression.unwrap().resolve(x, y);
+        let right = right_expression.unwrap().resolve(x, y);
+        if left.is_nan() || right.is_nan() {
+            false
+        }
+        else {
+            (left - right).abs() < err
+        }
+    }
+
 }

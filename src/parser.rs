@@ -1,27 +1,37 @@
 use std::collections::VecDeque;
 
-use crate::compute::{DualOperation, EquationNode, NumberNode, NumberOrOperation, SingleOperation};
+use crate::compute::{ConstantOrVariable, DualOperation, EquationNode, NumberNode, NumberOrOperation, SingleOperation};
 
-fn num_next(input: &str, x: f64, y: f64) -> f64 {
-    let mut negative = 1.0;
+fn num_next(input: &str) -> ConstantOrVariable {
+    let mut negative: i64 = 1;
 
     let mut index_start = 0;
 
     if input.starts_with('_') {
-        negative = -1.0;
+        negative = -1;
         index_start = 1;
     }
     if input.chars().nth(index_start) == Some('x') {
-        x * negative
+        if negative == 1 {
+            ConstantOrVariable::XVariable
+        }
+        else {
+            ConstantOrVariable::NegativeXVariable
+        }
     }
     else if input.chars().nth(index_start) == Some('y') {
-        y * negative
+        if negative == 1 {
+            ConstantOrVariable::YVariable
+        }
+        else {
+            ConstantOrVariable::NegativeYVariable
+        }
     }
     else if str::parse::<f64>(&input[index_start..]).is_ok() {
-        str::parse::<f64>(&input[index_start..]).unwrap() * negative 
+        ConstantOrVariable::Constant( str::parse::<f64>(&input[index_start..]).unwrap() * negative as f64 )
     }
     else {
-        f64::NAN
+        ConstantOrVariable::Nan
     }
 }
 
@@ -48,7 +58,7 @@ fn double_operation_match(c: char) -> Option<DualOperation> {
     }
 }
 
-fn generate_single(input: VecDeque<String>, x: f64, y: f64) -> (Option<NumberNode>, VecDeque<String>) {
+fn generate_single(input: VecDeque<String>) -> (Option<NumberNode>, VecDeque<String>) {
     let op = single_operation_match(input.front().unwrap().chars().next().unwrap());
 
     let mut input = input.clone();
@@ -61,7 +71,7 @@ fn generate_single(input: VecDeque<String>, x: f64, y: f64) -> (Option<NumberNod
     else {
         match input.front().unwrap().chars().next().unwrap() {
             's' | 'c' | 't' | 'a' | 'q' => {
-                let (node, input) = generate_single(input, x, y);
+                let (node, input) = generate_single(input);
                 (Some(
                     NumberNode::new(
                         Some(Box::new(NumberOrOperation::Single(node))), op
@@ -72,7 +82,7 @@ fn generate_single(input: VecDeque<String>, x: f64, y: f64) -> (Option<NumberNod
             ,
                 
             '+' | '-' | '*' | '/' | 'l' | 'e' => {
-                let (node, input) = generate_double(input, x, y);
+                let (node, input) = generate_double(input);
                 (Some(
                 NumberNode::new(
                     Some(Box::new(NumberOrOperation::Double(node))), op
@@ -81,28 +91,28 @@ fn generate_single(input: VecDeque<String>, x: f64, y: f64) -> (Option<NumberNod
         },
             _ => {
 
-                let number = num_next(input.front().unwrap(), x, y);
+                let number = num_next(input.front().unwrap(),);
 
                 input.pop_front();
                 
-                if number.is_nan() {
-                    (None, input)
-                }
-                else {
-                    (
-                        Some(
-                        NumberNode::new(
-                            Some(Box::new(NumberOrOperation::Number(number))), None
-                            )
-                        ), input
-                    )
+                match number {
+                    ConstantOrVariable::Nan => (None, input),
+                    _ => {
+                        (
+                            Some(
+                            NumberNode::new(
+                                Some(Box::new(NumberOrOperation::Number(number))), None
+                                )
+                            ), input
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-fn generate_double(input: VecDeque<String>, x: f64, y: f64) -> (Option<EquationNode>, VecDeque<String>) {
+fn generate_double(input: VecDeque<String>) -> (Option<EquationNode>, VecDeque<String>) {
     let op = double_operation_match(input.front().unwrap().chars().next().unwrap()).unwrap();
 
     let mut input = input.clone();
@@ -114,49 +124,18 @@ fn generate_double(input: VecDeque<String>, x: f64, y: f64) -> (Option<EquationN
     }
     else {
         let (a, mut input) = match input.front().unwrap().chars().next().unwrap() {
-            's' | 'c' | 't' | 'a' | 'q' => generate_single(input, x, y),
+            's' | 'c' | 't' | 'a' | 'q' => generate_single(input),
                 
-            '+' | '-' | '*' | '/' | 'l' | 'e' => generate(input, x, y),
+            '+' | '-' | '*' | '/' | 'l' | 'e' => generate(input),
             _ => {
 
-                let number = num_next(input.front().unwrap(), x, y);
+                let number = num_next(input.front().unwrap());
 
                 input.pop_front();
                 
-                if number.is_nan() {
-                    (None, input)
-                }
-                else {
-                    (
-                        Some(
-                        NumberNode::new(
-                            Some(Box::new(NumberOrOperation::Number(number))), None
-                            )
-                        ), input
-                    )
-                }
-            }
-        };
-
-        if input.front().is_none() || input.front().unwrap().chars().next().is_none() {
-            (None, input)
-        }
-        else {
-            let (b, input) = match input.front().unwrap().chars().next().unwrap() {
-                's' | 'c' | 't' | 'a' | 'q' => generate_single(input, x, y),
-                    
-                '+' | '-' | '*' | '/' | 'l' | 'e' => generate(input, x, y),
-
-                _ => {
-
-                    let number = num_next(input.front().unwrap(), x, y);
-
-                    input.pop_front();
-                    
-                    if number.is_nan() {
-                        (None, input)
-                    }
-                    else {
+                match number {
+                    ConstantOrVariable::Nan => (None, input),
+                    _=> {
                         (
                             Some(
                             NumberNode::new(
@@ -166,6 +145,37 @@ fn generate_double(input: VecDeque<String>, x: f64, y: f64) -> (Option<EquationN
                         )
                     }
                 }
+            }
+        };
+
+        if input.front().is_none() || input.front().unwrap().chars().next().is_none() {
+            (None, input)
+        }
+        else {
+            let (b, input) = match input.front().unwrap().chars().next().unwrap() {
+                's' | 'c' | 't' | 'a' | 'q' => generate_single(input),
+                    
+                '+' | '-' | '*' | '/' | 'l' | 'e' => generate(input),
+
+                _ => {
+
+                    let number = num_next(input.front().unwrap());
+
+                    input.pop_front();
+                    
+                    match number {
+                        ConstantOrVariable::Nan => (None, input),
+                        _=> {
+                            (
+                                Some(
+                                NumberNode::new(
+                                    Some(Box::new(NumberOrOperation::Number(number))), None
+                                    )
+                                ), input
+                            )
+                        }
+                    }
+                }
             };
 
             (Some(EquationNode::new(a, op, b)), input)
@@ -173,41 +183,41 @@ fn generate_double(input: VecDeque<String>, x: f64, y: f64) -> (Option<EquationN
     }
 }
 
-fn generate(input: VecDeque<String>, x: f64, y: f64) -> (Option<NumberNode>, VecDeque<String>) {
+fn generate(input: VecDeque<String>) -> (Option<NumberNode>, VecDeque<String>) {
 
     if input.front().is_none() || input.front().unwrap().chars().next().is_none() {
         (None, input)
     }
     else {
         match input.front().unwrap().chars().next().unwrap() {
-            's' | 'c' | 't' | 'a' | 'q' => generate_single(input, x, y),
+            's' | 'c' | 't' | 'a' | 'q' => generate_single(input),
             '+' | '-' | '*' | '/' | 'l' | 'e' => {
-                let (node, input) = generate_double(input, x, y);
+                let (node, input) = generate_double(input);
                 (Some(
-                NumberNode::new(
-                    Some(Box::new(NumberOrOperation::Double(node))), None
-                )
-            ), input)
+                    NumberNode::new(
+                        Some(Box::new(NumberOrOperation::Double(node))), None
+                    )
+                ), input)
             },
             _ => {
 
-                let number = num_next(input.front().unwrap(), x, y);
+                let number = num_next(input.front().unwrap());
 
                 let mut input = input.clone();
 
                 input.pop_front();
                 
-                if number.is_nan() {
-                    (None, input)
-                }
-                else {
-                    (
-                        Some(
-                        NumberNode::new(
-                            Some(Box::new(NumberOrOperation::Number(number))), None
-                            )
-                        ), input
-                    )
+                match number {
+                    ConstantOrVariable::Nan => (None, input),
+                    _=> {
+                        (
+                            Some(
+                            NumberNode::new(
+                                Some(Box::new(NumberOrOperation::Number(number))), None
+                                )
+                            ), input
+                        )
+                    }
                 }
             }
         }
@@ -233,27 +243,11 @@ fn split(input: &str) -> VecDeque<String> {
     out
 }
 
-pub fn point_check(left_side: &str, right_side: &str, x: f64, y: f64, err: f64) -> bool {
+pub fn generate_tree(input: &str) -> Option<NumberNode> {
 
-    let left_eq_string_vec = &split(left_side);
-    
-    let right_eq_string_vec = &split(right_side);
+    let input_vec = &split(input);
 
-    let (left_eq, _left) = generate(left_eq_string_vec.clone(), x, y);
-    
-    let (right_eq, _right) = generate(right_eq_string_vec.clone(), x, y);
+    let (eq, _) = generate(input_vec.clone(),);
 
-    if left_eq.is_none() || right_eq.is_none() {
-        false
-    }
-    else {
-        let left = left_eq.unwrap().resolve();
-        let right = right_eq.unwrap().resolve();
-        if left.is_nan() || right.is_nan() {
-            false
-        }
-        else {
-            (left - right).abs() < err
-        }
-    }
+    eq
 }
