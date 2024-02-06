@@ -1,4 +1,4 @@
-use std::io;
+use std::io::{self, Write};
 
 use crate::{compute::{point_check, NumberNode}, parser::generate_tree};
 
@@ -9,7 +9,7 @@ fn draw_iter(left_side: &NumberNode, right_side: &NumberNode, x: f64, y: f64, x_
     let x = x - (x_scale / 2.0);
     let y = y - (y_scale / 2.0);
 
-    let err = ((x).powi(2) + (y).powi(2)).sqrt() * x_scale.max(y_scale);
+    let err = (x_scale).max(y_scale).abs();
 
     let mut correct = false;
     for i in 0..iterations {
@@ -23,15 +23,17 @@ fn draw_iter(left_side: &NumberNode, right_side: &NumberNode, x: f64, y: f64, x_
 }
 
 pub fn make_graph(input: Vec<String>) {
-    let left_side_string = &input[8];
-    let right_side_string = &input[7];
-    let x_min_in = str::parse::<f64>(&input[6]);
-    let x_max_in = str::parse::<f64>(&input[5]);
+    dbg!(&input);
+
+    let left_side_string = &input[0];
+    let right_side_string = &input[1];
+    let x_min_in = str::parse::<f64>(&input[2]);
+    let x_max_in = str::parse::<f64>(&input[3]);
     let y_min_in = str::parse::<f64>(&input[4]);
-    let y_max_in = str::parse::<f64>(&input[3]);
-    let x_scale_in = str::parse::<f64>(&input[2]);
-    let y_scale_in = str::parse::<f64>(&input[1]);
-    let iterations_in = str::parse::<i64>(&input[0]);
+    let y_max_in = str::parse::<f64>(&input[5]);
+    let x_scale_in = str::parse::<f64>(&input[6]);
+    let y_scale_in = str::parse::<f64>(&input[7]);
+    let iterations_in = str::parse::<i64>(&input[8]);
 
     
     let x_scale = match x_scale_in {
@@ -126,7 +128,7 @@ pub fn make_graph(input: Vec<String>) {
         for i in y_min..(y_max + 1) {
             for j in x_min..(x_max + 1) {
                 if draw_iter(left_side.as_ref().unwrap(), right_side.as_ref().unwrap(), j as f64 * x_scale, i as f64 * y_scale,  x_scale, y_scale, iterations) {
-                    graph[(y_max - i) as usize][(j - x_min) as usize] = '•';
+                    graph[(y_max - i) as usize][(x_max - j) as usize] = '•';
                 }
             }
 
@@ -144,89 +146,111 @@ pub fn make_graph(input: Vec<String>) {
 pub fn draw() {
     let mut parameters: Vec<String> = Vec::new();
 
-    let mut input: String = String::new();
+    let mut input: String = "".to_string();
 
     print!("first expression: ");
-
-    let _ = io::stdin().read_line(&mut input);
+    let _ = io::stdout().flush();
+    
+    let _ = io::stdin().read_line(&mut input).is_ok();
 
     parameters.push(input.clone());
+    input = "".to_string();
 
     print!("second expression: ");
+    let _ = io::stdout().flush();
 
-    let _ = io::stdin().read_line(&mut input);
+    let _ = io::stdin().read_line(&mut input).is_ok();
 
     parameters.push(input.clone());
+    input = "".to_string();
 
     print!("x-axis minimum (default -10): ");
+    let _ = io::stdout().flush();
 
-    let _ = io::stdin().read_line(&mut input);
+    let _ = io::stdin().read_line(&mut input).is_ok();
 
-    if input.is_empty() {
+    if input.len() == 2 {
         input = "-10".to_string();
     }
 
     parameters.push(input.clone());
+    input = "".to_string();
 
     print!("x-axis maximum (default 10): ");
+    let _ = io::stdout().flush();
 
-    let _ = io::stdin().read_line(&mut input);
+    let _ = io::stdin().read_line(&mut input).is_ok();
 
-    if input.is_empty() {
+    if input.len() == 2 {
         input = "10".to_string();
     }
 
     parameters.push(input.clone());
+    input = "".to_string();
 
     print!("y-axis minimum (default -10): ");
+    let _ = io::stdout().flush();
 
-    let _ = io::stdin().read_line(&mut input);
+    let _ = io::stdin().read_line(&mut input).is_ok();
 
-    if input.is_empty() {
+    if input.len() == 2 {
         input = "-10".to_string();
     }
 
     parameters.push(input.clone());
+    input = "".to_string();
 
     print!("y-axis maximum (default 10): ");
+    let _ = io::stdout().flush();
 
-    let _ = io::stdin().read_line(&mut input);
+    let _ = io::stdin().read_line(&mut input).is_ok();
 
-    if input.is_empty() {
+    if input.len() == 2 {
         input = "10".to_string();
     }
 
     parameters.push(input.clone());
+    input = "".to_string();
 
     print!("x scale (default 1.0): ");
+    let _ = io::stdout().flush();
 
-    let _ = io::stdin().read_line(&mut input);
+    let _ = io::stdin().read_line(&mut input).is_ok();
 
-    if input.is_empty() {
+    if input.len() == 2 {
         input = "1.0".to_string();
     }
 
     parameters.push(input.clone());
+    input = "".to_string();
 
     print!("y scale (default 1.0): ");
+    let _ = io::stdout().flush();
 
-    let _ = io::stdin().read_line(&mut input);
+    let _ = io::stdin().read_line(&mut input).is_ok();
 
-    if input.is_empty() {
+    if input.len() == 2 {
         input = "1.0".to_string();
     }
 
     parameters.push(input.clone());
+    input = "".to_string();
 
     print!("number of subscale checks (default 100): ");
+    let _ = io::stdout().flush();
 
-    let _ = io::stdin().read_line(&mut input);
+    let _ = io::stdin().read_line(&mut input).is_ok();
 
-    if input.is_empty() {
+    if input.len() == 2 {
         input = "100".to_string();
     }
-
     parameters.push(input.clone());
+
+    print!("{}", parameters[0]);
+
+    for s in &mut parameters {
+        *s = s.trim_end().to_string();
+    }
 
     make_graph(parameters);
 }
