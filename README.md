@@ -1,8 +1,8 @@
 # rough-grapher
 
-A CLI grapher in rust.
+A CLI grapher in rust, using a rudimentary computer algebra system made from scratch.
 
-This program will print a graph in the command line, with user provided arguments for the range and scale of the axis, and two halves of a user provided equation in prefix notation.
+This program will print a graph in the command line given two user-provided expressions with prefix notation.
 
 - s = sin
 - c = cos
@@ -12,12 +12,22 @@ This program will print a graph in the command line, with user provided argument
 - l = log
 - e = exp
 - use '_' as the negative sign for equations
+- x and y are the variables
+
+Increase number of sub-iterations if graph is too sparse
 
 ## Example
 [https://en.wikipedia.org/wiki/Rose_(mathematics)](https://en.wikipedia.org/wiki/Rose_(mathematics))
-- Input: -30 30 -30 30 "a e + e x 2 e y 2 2" "* 10 a * _2.5 - e x 3 * 3 * x e y 2" 100 0.5 1
-- Output:
+
 ```
+first expression: a e + e x 2 e y 2 2
+second expression: * 10 a * _2.5 - e x 3 * 3 * x e y 2
+x-axis minimum (default -10): -30
+x-axis maximum (default 10): 30
+y-axis minimum (default -10): -30
+y-axis maximum (default 10): 30
+x scale (default 1.0): 0.5
+y scale (default 1.0): 1
                                                             |
                                                             |
                                                             |
@@ -26,51 +36,51 @@ This program will print a graph in the command line, with user provided argument
                                                             |
                                                             |
                                                             |
-                                  ••••••••                  |                 ••••••••
-                                 •••       ••               |              ••••       •
-                                ••            •             |            •••
-                                •               •           |          •••              •
-                                •                           |         ••                •
-                                •                  •        |       •••                 •
-                                                            |      ••                  ••
-                                 •                          |     ••                   •
-                                                            |    ••                   ••
-                                                       •    |   ••                   ••
-                                                        •   |   ••                  ••
-                                                            |  ••                  ••
-                                      •                  •  | ••                 •••
-                                                          • | ••                ••
-                                         •                • | •               •••
-                                           •                |••             •••
-                                                           •|•             ••
-                        •••••••••             ••           •|•          ••••           •••••••••
-                •••••••••         ••••••••••     •          ••        •••    •••••••••••         •••••••
-             ••••                           •••••• •        •       ••••••••••                           ••
-           •••                                     ••••     •    ••••••                                     •
-          ••                                           •••  • •••••
-----------•-----------------------------------------------•••••-----------------------------------------------•----------
-                                                      ••••• •  •••                                           ••
-            •                                     ••••••    •     ••••                                     •••
-              ••                             ••••••••       •        • •••••                            ••••
-                 •••••••         •••••••• •••   •••        ••          •     ••••••••••         •••••••••
-                         •••••••••           ••••          •|•           ••             •••••••••
-                                            ••             •|•
-                                          •••             ••|                •
-                                        •••               • | •                •
-                                       ••                •• | •
-                                     •••                 •• |  •                  •
-                                    ••                  ••  |
-                                   ••                   •   |   •
-                                  ••                   ••   |    •
-                                 ••                   ••    |
-                                 •                   ••     |                          •
-                                ••                  ••      |
-                                •                 •••       |        •                  •
-                                •                ••         |                           •
-                                •              •••          |           •               •
-                                             •••            |             •            ••
-                                  •       ••••              |               ••       •••
-                                   ••••••••                 |                  ••••••••
+                                   •••••••                  |                  •••••••
+                                 ••       •••               |               •••       ••
+                                ••           •••            |            •••           ••
+                                •              •••          |          •••              •
+                                •                ••         |         ••                •
+                                •                  •        |        •                  •
+                                ••                  ••      |      ••                  ••
+                                 •                   ••     |     ••                   •
+                                 ••                   ••    |    ••                   ••
+                                  ••                   •    |    •                   ••
+                                   ••                   •   |   •                   ••
+                                    ••                  ••  |  ••                  ••
+                                      •                  •  |  •                  •
+                                       ••                 • | •                 ••
+                                        ••                • | •                ••
+                                          ••               •|•               ••
+                                            ••             •|•             ••
+                           ••••               ••           •|•           ••               ••••
+                 ••••••            •••••••••    •••         •         •••    •••••••••            ••••••
+             ••••                           •••••••••       |       •••••••••                           ••••
+           ••                                     ••••••    |    ••••••                                     ••
+          ••                                           •••  |  •••                                           ••
+----------•------------------------------------------------•+•------------------------------------------------•----------
+          ••                                           •••  |  •••                                           ••
+           ••                                     ••••••    |    ••••••                                     ••
+             ••••                           •••••••••       |       •••••••••                           ••••
+                 ••••••            •••••••••    •••         •         •••    •••••••••            ••••••
+                           ••••               ••           •|•           ••               ••••
+                                            ••             •|•             ••
+                                          ••               •|•               ••
+                                        ••                • | •                ••
+                                       ••                 • | •                 ••
+                                      •                  •  |  •                  •
+                                    ••                  ••  |  ••                  ••
+                                   ••                   •   |   •                   ••
+                                  ••                   •    |    •                   ••
+                                 ••                   ••    |    ••                   ••
+                                 •                   ••     |     ••                   •
+                                ••                  ••      |      ••                  ••
+                                •                  •        |        •                  •
+                                •                ••         |         ••                •
+                                •              •••          |          •••              •
+                                ••           •••            |            •••           ••
+                                 ••       •••               |               •••       ••
+                                   •••••••                  |                  •••••••
                                                             |
                                                             |
                                                             |

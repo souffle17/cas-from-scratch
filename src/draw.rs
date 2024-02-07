@@ -1,26 +1,6 @@
 use std::io::{self, Write};
 
-use crate::{compute::{point_check, NumberNode}, parser::generate_tree};
-
-fn draw_iter(left_side: &NumberNode, right_side: &NumberNode, x: f64, y: f64, x_scale: f64, y_scale: f64, iterations: i64) -> bool {
-    let x_diff = x_scale / iterations as f64;
-    let y_diff = y_scale / iterations as f64;
-
-    let x = x - (x_scale / 2.0);
-    let y = y - (y_scale / 2.0);
-
-    let err = (x_scale).max(y_scale).abs();
-
-    let mut correct = false;
-    for i in 0..iterations {
-        if point_check(Some(left_side), Some(right_side), x + (i as f64*x_diff), y + (i as f64*y_diff), err) {
-            correct = true;
-            break;
-        }
-    }
-
-    correct
-}
+use crate::{compute::point_check, parser::generate_tree};
 
 pub fn make_graph(input: Vec<String>) {
     let left_side_string = &input[0];
@@ -31,7 +11,6 @@ pub fn make_graph(input: Vec<String>) {
     let y_max_in = str::parse::<f64>(&input[5]);
     let x_scale_in = str::parse::<f64>(&input[6]);
     let y_scale_in = str::parse::<f64>(&input[7]);
-    let iterations_in = str::parse::<i64>(&input[8]);
 
     
     let x_scale = match x_scale_in {
@@ -82,14 +61,6 @@ pub fn make_graph(input: Vec<String>) {
         },
     };
 
-    let iterations = match iterations_in {
-        Ok(_) => iterations_in.unwrap(),
-        Err(_) => {
-            eprintln!("invalid iterations, using default"); 
-            100
-        },
-    };
-
     let mut graph: Vec<Vec<char>> = Vec::new();
 
     //coordinate axis
@@ -125,7 +96,7 @@ pub fn make_graph(input: Vec<String>) {
     else {
         for i in y_min..(y_max + 1) {
             for j in x_min..(x_max + 1) {
-                if draw_iter(left_side.as_ref().unwrap(), right_side.as_ref().unwrap(), j as f64 * x_scale, i as f64 * y_scale,  x_scale, y_scale, iterations) {
+                if point_check(left_side.as_ref(), right_side.as_ref(), j as f64 * x_scale, i as f64 * y_scale,  x_scale, y_scale) {
                     graph[(y_max - i) as usize][(x_max - j) as usize] = '•';
                 }
             }
@@ -232,19 +203,6 @@ pub fn draw() {
     }
 
     parameters.push(input.clone());
-    input = "".to_string();
-
-    print!("number of subscale checks (default 100): ");
-    let _ = io::stdout().flush();
-
-    let _ = io::stdin().read_line(&mut input).is_ok();
-
-    if input.len() == 2 {
-        input = "100".to_string();
-    }
-    parameters.push(input.clone());
-
-    print!("{}", parameters[0]);
 
     for s in &mut parameters {
         *s = s.trim_end().to_string();

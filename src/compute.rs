@@ -145,20 +145,48 @@ impl EquationNode {
     }
 }
 
-pub fn point_check(left_expression: Option<&NumberNode>, right_expression: Option<&NumberNode>, x: f64, y: f64, err: f64) -> bool {
+pub fn point_check(left_expression: Option<&NumberNode>, right_expression: Option<&NumberNode>, x: f64, y: f64, x_scale: f64, y_scale: f64) -> bool {
 
+    let x_scale = x_scale * 0.4;
+    let y_scale = y_scale * 0.4;
     if left_expression.is_none() || right_expression.is_none() {
         false
     }
     else {
-        let left = left_expression.unwrap().resolve(x, y);
-        let right = right_expression.unwrap().resolve(x, y);
-        if left.is_nan() || right.is_nan() {
-            false
+
+        let mut fov: [(f64, f64); 9] = [(f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN)
+        ];
+
+        let mut index = 0;
+        for i in -1..2 {
+            for j in -1..2 {
+                fov[index] = (left_expression.unwrap().resolve(x + (j as f64*x_scale), y + (i as f64*y_scale)), 
+                    right_expression.unwrap().resolve(x + (j as f64*x_scale), y + (i as f64*y_scale)));
+                index += 1;
+            }
         }
-        else {
-            (left - right).abs() < err
+        
+        let mut pass: bool = false;
+
+        // check for intersection
+        for n in 0..4 {
+            pass = pass || (
+                (fov[n].0 - fov[n].1 > 0.0) != (fov[8-n].0 - fov[8-n].1 > 0.0)
+            );
         }
+
+        // not nan
+        pass = pass && !(left_expression.unwrap().resolve(x, y).is_nan() || right_expression.unwrap().resolve(x, y).is_nan());
+
+        pass
     }
 
 }
