@@ -18,6 +18,7 @@ fn memory_edit(slot_1: &mut (String, Option<NumberNode>), slot_2: &mut (String, 
 
     input.clear();
     let _ = io::stdin().read_line(&mut input).is_ok();
+    input = input.trim_end().to_string();
 
     let temp = input.clone();
 
