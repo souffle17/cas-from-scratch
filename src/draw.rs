@@ -94,6 +94,8 @@ pub fn make_graph(input: Vec<String>) {
         }
     }
     else {
+        println!("Graph of {} = {}", left_side_string, right_side_string);
+
         for i in y_min..(y_max + 1) {
             for j in x_min..(x_max + 1) {
                 if point_check(left_side.as_ref(), right_side.as_ref(), j as f64 * x_scale, i as f64 * y_scale,  x_scale, y_scale) {
