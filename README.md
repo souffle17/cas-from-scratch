@@ -6,6 +6,7 @@ This uses an entirely custom expression parser, so it will not be as practical a
 
 #### Capabilities
 - Parsing expressions
+- Displaying expression trees
 - Implicit graphing of equations
 - Simplifying expressions (todo)
 
@@ -19,7 +20,6 @@ Expressions need to be in prefix notation seperated by spaces.
 - q = square root
 - l = log
 - e = exponent
-- use '_' as the negative sign for equations
 - x and y are the variables
 
 ## Graphing
@@ -30,7 +30,7 @@ This program will print an implicit graph in the command line given two user-pro
 
 ```
 first expression: a e + e x 2 e y 2 2
-second expression: * 10 a * _2.5 - e x 3 * 3 * x e y 2
+second expression: * 10 a * -2.5 - e x 3 * 3 * x e y 2
 x-axis minimum (default -10): -30
 x-axis maximum (default 10): 30
 y-axis minimum (default -10): -30
