@@ -2,7 +2,7 @@
 
 A CLI grapher in rust, using a rudimentary computer algebra system made from scratch.
 
-This program will print a graph in the command line given two user-provided expressions with prefix notation.
+This program will print an implicit graph in the command line given two user-provided expressions with prefix notation.
 
 - s = sin
 - c = cos
@@ -13,8 +13,6 @@ This program will print a graph in the command line given two user-provided expr
 - e = exp
 - use '_' as the negative sign for equations
 - x and y are the variables
-
-Increase number of sub-iterations if graph is too sparse
 
 ## Example
 [https://en.wikipedia.org/wiki/Rose_(mathematics)](https://en.wikipedia.org/wiki/Rose_(mathematics))
