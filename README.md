@@ -29,14 +29,24 @@ This program will print an implicit graph in the command line given two user-pro
 [https://en.wikipedia.org/wiki/Rose_(mathematics)](https://en.wikipedia.org/wiki/Rose_(mathematics))
 
 ```
-first expression: a e + e x 2 e y 2 2
-second expression: * 10 a * -2.5 - e x 3 * 3 * x e y 2
+Expressions in memory:
+1: a e + e x 2 e y 2 2
+2: * 10 a * -2.5 - e x 3 * 3 * x e y 2
+
+0. Quit
+1. Enter an expression
+2. Print expression tree
+3. Compute value from expression
+4. Graph expressions as equation
+5. Simplify an expression
+Pick an operation by number: 4
 x-axis minimum (default -10): -30
 x-axis maximum (default 10): 30
 y-axis minimum (default -10): -30
 y-axis maximum (default 10): 30
 x scale (default 1.0): 0.5
-y scale (default 1.0): 
+y scale (default 1.0):
+
                                                             |
                                                             |
                                                             |
@@ -98,4 +108,6 @@ y scale (default 1.0):
                                                             |
                                                             |
                                                             |
+
+_______________________________________________________________________________________
 ```
