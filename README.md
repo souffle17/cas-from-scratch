@@ -1,8 +1,11 @@
 # simple-cas
 
-A rudimentary CLI computer algebra system made from scratch in Rust.
+A rudimentary CLI computer algebra system made from scratch in Rust, with no external crates.
+
+This uses an entirely custom expression parser, so it will not be as practical as other packages.
 
 #### Capabilities
+- Parsing expressions
 - Implicit graphing of equations
 - Simplifying expressions (todo)
 
@@ -20,7 +23,7 @@ Expressions need to be in prefix notation seperated by spaces.
 - x and y are the variables
 
 ## Graphing
-This program will print an implicit graph in the command line given two user-provided expressions with prefix notation.
+This program will print an implicit graph in the command line given two user-provided expressions.
 
 ### Example
 [https://en.wikipedia.org/wiki/Rose_(mathematics)](https://en.wikipedia.org/wiki/Rose_(mathematics))

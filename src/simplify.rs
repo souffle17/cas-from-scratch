@@ -18,7 +18,7 @@ pub fn simplify() {
         println!("Invalid expression");
     }
     else {
-        let input_tree = input_tree.unwrap();
+        let _input_tree = input_tree.unwrap();
 
         todo!();
         

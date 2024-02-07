@@ -7,11 +7,14 @@ fn num_next(input: &str) -> ConstantOrVariable {
 
     let mut index_start = 0;
 
-    if input.starts_with('_') {
+    if input.starts_with('-') {
         negative = -1;
         index_start = 1;
     }
-    if input.chars().nth(index_start) == Some('x') {
+
+    let input = &input[index_start..];
+
+    if input.starts_with('x') {
         if negative == 1 {
             ConstantOrVariable::XVariable
         }
@@ -19,7 +22,7 @@ fn num_next(input: &str) -> ConstantOrVariable {
             ConstantOrVariable::NegativeXVariable
         }
     }
-    else if input.chars().nth(index_start) == Some('y') {
+    else if input.starts_with('y') {
         if negative == 1 {
             ConstantOrVariable::YVariable
         }
@@ -27,8 +30,8 @@ fn num_next(input: &str) -> ConstantOrVariable {
             ConstantOrVariable::NegativeYVariable
         }
     }
-    else if str::parse::<f64>(&input[index_start..]).is_ok() {
-        ConstantOrVariable::Constant( str::parse::<f64>(&input[index_start..]).unwrap() * negative as f64 )
+    else if str::parse::<f64>(input).is_ok() {
+        ConstantOrVariable::Constant( str::parse::<f64>(input).unwrap() * negative as f64 )
     }
     else {
         ConstantOrVariable::Nan
@@ -68,7 +71,7 @@ fn generate_single(input: VecDeque<String>) -> (Option<NumberNode>, VecDeque<Str
     if input.front().is_none() || input.front().unwrap().chars().next().is_none() {
         (None, input)
     }
-    else {
+    else if input.front().unwrap().len() == 1 {
         match input.front().unwrap().chars().next().unwrap() {
             's' | 'c' | 't' | 'a' | 'q' => {
                 let (node, input) = generate_single(input);
@@ -110,6 +113,24 @@ fn generate_single(input: VecDeque<String>) -> (Option<NumberNode>, VecDeque<Str
             }
         }
     }
+    else {
+        let number = num_next(input.front().unwrap(),);
+
+        input.pop_front();
+        
+        match number {
+            ConstantOrVariable::Nan => (None, input),
+            _ => {
+                (
+                    Some(
+                    NumberNode::new(
+                        Some(Box::new(NumberOrOperation::Number(number))), None
+                        )
+                    ), input
+                )
+            }
+        }
+    }
 }
 
 fn generate_double(input: VecDeque<String>) -> (Option<EquationNode>, VecDeque<String>) {
@@ -123,40 +144,11 @@ fn generate_double(input: VecDeque<String>) -> (Option<EquationNode>, VecDeque<S
         (None, input)
     }
     else {
-        let (a, mut input) = match input.front().unwrap().chars().next().unwrap() {
-            's' | 'c' | 't' | 'a' | 'q' => generate_single(input),
-                
-            '+' | '-' | '*' | '/' | 'l' | 'e' => generate(input),
-            _ => {
-
-                let number = num_next(input.front().unwrap());
-
-                input.pop_front();
-                
-                match number {
-                    ConstantOrVariable::Nan => (None, input),
-                    _=> {
-                        (
-                            Some(
-                            NumberNode::new(
-                                Some(Box::new(NumberOrOperation::Number(number))), None
-                                )
-                            ), input
-                        )
-                    }
-                }
-            }
-        };
-
-        if input.front().is_none() || input.front().unwrap().chars().next().is_none() {
-            (None, input)
-        }
-        else {
-            let (b, input) = match input.front().unwrap().chars().next().unwrap() {
+        let (a, mut input) = if input.front().unwrap().len() == 1 {
+            match input.front().unwrap().chars().next().unwrap() {
                 's' | 'c' | 't' | 'a' | 'q' => generate_single(input),
                     
                 '+' | '-' | '*' | '/' | 'l' | 'e' => generate(input),
-
                 _ => {
 
                     let number = num_next(input.front().unwrap());
@@ -174,6 +166,75 @@ fn generate_double(input: VecDeque<String>) -> (Option<EquationNode>, VecDeque<S
                                 ), input
                             )
                         }
+                    }
+                }
+            }
+        }
+        else {
+            let number = num_next(input.front().unwrap());
+
+            input.pop_front();
+            
+            match number {
+                ConstantOrVariable::Nan => (None, input),
+                _=> {
+                    (
+                        Some(
+                        NumberNode::new(
+                            Some(Box::new(NumberOrOperation::Number(number))), None
+                            )
+                        ), input
+                    )
+                }
+            }
+        };
+
+        if input.front().is_none() || input.front().unwrap().chars().next().is_none() {
+            (None, input)
+        }
+        else {
+            let (b, input) = if input.front().unwrap().len() == 1 {
+                match input.front().unwrap().chars().next().unwrap() {
+                    's' | 'c' | 't' | 'a' | 'q' => generate_single(input),
+                        
+                    '+' | '-' | '*' | '/' | 'l' | 'e' => generate(input),
+
+                    _ => {
+
+                        let number = num_next(input.front().unwrap());
+
+                        input.pop_front();
+                        
+                        match number {
+                            ConstantOrVariable::Nan => (None, input),
+                            _=> {
+                                (
+                                    Some(
+                                    NumberNode::new(
+                                        Some(Box::new(NumberOrOperation::Number(number))), None
+                                        )
+                                    ), input
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                let number = num_next(input.front().unwrap());
+
+                input.pop_front();
+                
+                match number {
+                    ConstantOrVariable::Nan => (None, input),
+                    _=> {
+                        (
+                            Some(
+                            NumberNode::new(
+                                Some(Box::new(NumberOrOperation::Number(number))), None
+                                )
+                            ), input
+                        )
                     }
                 }
             };

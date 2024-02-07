@@ -1,16 +1,60 @@
 use std::io::{self, Write};
 
-use crate::{compute::point_check, parser::generate_tree};
+use crate::compute::NumberNode;
 
-pub fn make_graph(input: Vec<String>) {
-    let left_side_string = &input[0];
-    let right_side_string = &input[1];
-    let x_min_in = str::parse::<f64>(&input[2]);
-    let x_max_in = str::parse::<f64>(&input[3]);
-    let y_min_in = str::parse::<f64>(&input[4]);
-    let y_max_in = str::parse::<f64>(&input[5]);
-    let x_scale_in = str::parse::<f64>(&input[6]);
-    let y_scale_in = str::parse::<f64>(&input[7]);
+pub fn point_check(left_expression: Option<&NumberNode>, right_expression: Option<&NumberNode>, x: f64, y: f64, x_scale: f64, y_scale: f64) -> bool {
+
+    let x_scale = x_scale * 0.4;
+    let y_scale = y_scale * 0.4;
+    if left_expression.is_none() || right_expression.is_none() {
+        false
+    }
+    else {
+
+        let mut fov: [(f64, f64); 9] = [(f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN), 
+            (f64::NAN, f64::NAN)
+        ];
+
+        let mut index = 0;
+        for i in -1..2 {
+            for j in -1..2 {
+                fov[index] = (left_expression.unwrap().resolve(x + (j as f64*x_scale), y + (i as f64*y_scale)), 
+                    right_expression.unwrap().resolve(x + (j as f64*x_scale), y + (i as f64*y_scale)));
+                index += 1;
+            }
+        }
+        
+        let mut pass: bool = false;
+
+        // check for intersection
+        for n in 0..4 {
+            pass = pass || (
+                (fov[n].0 - fov[n].1 > 0.0) != (fov[8-n].0 - fov[8-n].1 > 0.0)
+            );
+        }
+
+        // not nan
+        pass = pass && !(left_expression.unwrap().resolve(x, y).is_nan() || right_expression.unwrap().resolve(x, y).is_nan());
+
+        pass
+    }
+
+}
+
+pub fn make_graph(left_side: Option<&NumberNode>, right_side: Option<&NumberNode>, parameters: Vec<String>) -> String {
+    let x_min_in = str::parse::<f64>(&parameters[0]);
+    let x_max_in = str::parse::<f64>(&parameters[1]);
+    let y_min_in = str::parse::<f64>(&parameters[2]);
+    let y_max_in = str::parse::<f64>(&parameters[3]);
+    let x_scale_in = str::parse::<f64>(&parameters[4]);
+    let y_scale_in = str::parse::<f64>(&parameters[5]);
 
     
     let x_scale = match x_scale_in {
@@ -81,9 +125,6 @@ pub fn make_graph(input: Vec<String>) {
         }
         graph.push(row);
     }
-
-    let left_side = generate_tree(left_side_string);
-    let right_side = generate_tree(right_side_string);
     
     if left_side.is_none() || right_side.is_none() {
         if left_side.is_none() {
@@ -92,49 +133,36 @@ pub fn make_graph(input: Vec<String>) {
         if right_side.is_none() {
             eprintln!("second expression couldn't be resolved");
         }
+
+        "".to_string()
     }
     else {
-        println!("Graph of {} = {}", left_side_string, right_side_string);
+        let mut output: String = String::new();
 
         for i in y_min..(y_max + 1) {
             for j in x_min..(x_max + 1) {
-                if point_check(left_side.as_ref(), right_side.as_ref(), j as f64 * x_scale, i as f64 * y_scale,  x_scale, y_scale) {
+                if point_check(left_side, right_side, j as f64 * x_scale, i as f64 * y_scale,  x_scale, y_scale) {
                     graph[(y_max - i) as usize][(x_max - j) as usize] = '•';
                 }
             }
 
-            let mut output: String = String::new();
             for char in &graph[(y_max - i) as usize] {
                 output.push(*char);
             }
     
-            println!("{}", output);
+            output.push('\n');
 
         }
+
+        output
     }
 }
 
-pub fn draw() {
+pub fn draw_prompt(left_expression: Option<&NumberNode>, right_expression: Option<&NumberNode>) {
     let mut parameters: Vec<String> = Vec::new();
 
     let mut input: String = "".to_string();
-
-    print!("first expression: ");
-    let _ = io::stdout().flush();
     
-    let _ = io::stdin().read_line(&mut input).is_ok();
-
-    parameters.push(input.clone());
-    input = "".to_string();
-
-    print!("second expression: ");
-    let _ = io::stdout().flush();
-
-    let _ = io::stdin().read_line(&mut input).is_ok();
-
-    parameters.push(input.clone());
-    input = "".to_string();
-
     print!("x-axis minimum (default -10): ");
     let _ = io::stdout().flush();
 
@@ -210,5 +238,6 @@ pub fn draw() {
         *s = s.trim_end().to_string();
     }
 
-    make_graph(parameters);
+    println!();
+    println!("{}", make_graph(left_expression, right_expression, parameters));
 }
