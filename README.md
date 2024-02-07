@@ -1,4 +1,4 @@
-# simple-computer-algebra
+# simple-cas
 
 A rudimentary CLI computer algebra system made from scratch in Rust.
 
