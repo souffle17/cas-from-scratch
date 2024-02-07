@@ -23,8 +23,6 @@ fn draw_iter(left_side: &NumberNode, right_side: &NumberNode, x: f64, y: f64, x_
 }
 
 pub fn make_graph(input: Vec<String>) {
-    dbg!(&input);
-
     let left_side_string = &input[0];
     let right_side_string = &input[1];
     let x_min_in = str::parse::<f64>(&input[2]);
@@ -39,7 +37,7 @@ pub fn make_graph(input: Vec<String>) {
     let x_scale = match x_scale_in {
         Ok(_) => x_scale_in.unwrap(),
         Err(_) => {
-            println!("invalid x scale, using default");
+            eprintln!("invalid x scale, using default");
             1.0
         },
     };
@@ -47,7 +45,7 @@ pub fn make_graph(input: Vec<String>) {
     let y_scale = match y_scale_in {
         Ok(_) => y_scale_in.unwrap(),
         Err(_) => {
-            println!("invalid y scale, using default");
+            eprintln!("invalid y scale, using default");
             1.0
         },
     };
@@ -55,7 +53,7 @@ pub fn make_graph(input: Vec<String>) {
     let x_min = match x_min_in {
         Ok(_) => (x_min_in.unwrap() / x_scale).round() as i64,
         Err(_) => {
-            println!("invalid x min, using default"); 
+            eprintln!("invalid x min, using default"); 
             -10
         },
     };
@@ -63,7 +61,7 @@ pub fn make_graph(input: Vec<String>) {
     let x_max = match x_max_in {
         Ok(_) => (x_max_in.unwrap() / x_scale).round() as i64,
         Err(_) => {
-            println!("invalid x max, using default"); 
+            eprintln!("invalid x max, using default"); 
             10
         },
     };
@@ -71,7 +69,7 @@ pub fn make_graph(input: Vec<String>) {
     let y_min = match y_min_in {
         Ok(_) => (y_min_in.unwrap() / y_scale).round() as i64,
         Err(_) => {
-            println!("invalid y min, using default"); 
+            eprintln!("invalid y min, using default"); 
             -10
         },
     };
@@ -79,7 +77,7 @@ pub fn make_graph(input: Vec<String>) {
     let y_max = match y_max_in {
         Ok(_) => (y_max_in.unwrap() / y_scale).round() as i64,
         Err(_) => {
-            println!("invalid y max, using default"); 
+            eprintln!("invalid y max, using default"); 
             10
         },
     };
@@ -87,7 +85,7 @@ pub fn make_graph(input: Vec<String>) {
     let iterations = match iterations_in {
         Ok(_) => iterations_in.unwrap(),
         Err(_) => {
-            println!("invalid iterations, using default"); 
+            eprintln!("invalid iterations, using default"); 
             100
         },
     };
