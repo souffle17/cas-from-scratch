@@ -9,13 +9,13 @@ A rudimentary CLI computer algebra system made from scratch in Rust.
 #### Expressions
 Expressions need to be in prefix notation seperated by spaces.
 
-- s = sin
-- c = cos
-- t = tan
-- a = abs
-- q = sqrt
+- s = sine
+- c = cosine
+- t = tangent
+- a = absolute value
+- q = square root
 - l = log
-- e = exp
+- e = exponent
 - use '_' as the negative sign for equations
 - x and y are the variables
 
@@ -33,7 +33,7 @@ x-axis maximum (default 10): 30
 y-axis minimum (default -10): -30
 y-axis maximum (default 10): 30
 x scale (default 1.0): 0.5
-y scale (default 1.0): 1
+y scale (default 1.0): 
                                                             |
                                                             |
                                                             |
