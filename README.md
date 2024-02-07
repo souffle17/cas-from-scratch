@@ -1,8 +1,13 @@
-# rough-grapher
+# simple-computer-algebra
 
-A CLI grapher in rust, using a rudimentary computer algebra system made from scratch.
+A rudimentary CLI computer algebra system made from scratch in Rust.
 
-This program will print an implicit graph in the command line given two user-provided expressions with prefix notation.
+#### Capabilities
+- Implicit graphing of equations
+- Simplifying expressions (todo)
+
+#### Expressions
+Expressions need to be in prefix notation seperated by spaces.
 
 - s = sin
 - c = cos
@@ -14,7 +19,10 @@ This program will print an implicit graph in the command line given two user-pro
 - use '_' as the negative sign for equations
 - x and y are the variables
 
-## Example
+## Graphing
+This program will print an implicit graph in the command line given two user-provided expressions with prefix notation.
+
+### Example
 [https://en.wikipedia.org/wiki/Rose_(mathematics)](https://en.wikipedia.org/wiki/Rose_(mathematics))
 
 ```
