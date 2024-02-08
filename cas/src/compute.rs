@@ -1,15 +1,20 @@
-// operations that need two numbers
+//commutative operations
 #[derive(Debug)]
-pub enum DualOperation {
+pub enum CommOperation {
     Plus,
+    Multiply
+}
+
+//operations that need 2 numbers
+#[derive(Debug)]
+pub enum DualOrderOperation {
     Minus,
-    Multiply,
     Divide,
     Log,
     Exp
 }
 
-// operations that need one number
+//operations that need 1 number
 #[derive(Debug)]
 pub enum SingleOperation{
     Sin,
@@ -21,7 +26,8 @@ pub enum SingleOperation{
 
 #[derive(Debug)]
 pub enum NumberOrOperation {
-    Double(Option<EquationNode>),
+    Comm(Option<CommNode>),
+    Double(Option<DualNode>),
     Single(Option<NumberNode>),
     Number(ConstantOrVariable)
 }
@@ -44,37 +50,41 @@ pub struct NumberNode {
 }
 
 #[derive(Debug)]
-pub struct EquationNode {
+pub struct DualNode {
     first_operand: Option<NumberNode>,
-    operation: DualOperation,
+    operation: DualOrderOperation,
     second_operand: Option<NumberNode>
 }
 
-fn enum_compute_dual(a: f64, b: f64, o: &DualOperation) -> f64 {
+#[derive(Debug)]
+pub struct CommNode {
+    numbers: Vec<NumberNode>,
+    operation: CommOperation
+}
+
+fn enum_compute_dual(a: f64, b: f64, o: &DualOrderOperation) -> f64 {
     match o {
-        DualOperation::Plus => a + b,
-        DualOperation::Minus => a - b,
-        DualOperation::Multiply => a * b,
-        DualOperation::Divide => a / b,
-        DualOperation::Log => a.log(b),
-        DualOperation::Exp => a.powf(b)
+        DualOrderOperation::Minus => a - b,
+        DualOrderOperation::Divide => a / b,
+        DualOrderOperation::Log => a.log(b),
+        DualOrderOperation::Exp => a.powf(b)
     }
 }
 
 impl NumberNode {
     // resolve the equation into a number (or not a number)
-    pub fn resolve(&self, x: f64, y: f64) -> f64 {
+    pub fn resolve(&self, x: &f64, y: &f64) -> f64 {
         match self.value {
             Some(_) => {
                 let n = match self.value.as_ref().unwrap().as_ref() {
-                    NumberOrOperation::Double (o) => {
-                        match o {
+                    NumberOrOperation::Double (op) => {
+                        match op {
                             Some(op) => op.resolve(x, y),
                             None => f64::NAN
                        }
                     },
-                    NumberOrOperation::Single(o) => {
-                        match o {
+                    NumberOrOperation::Single(op) => {
+                        match op {
                             Some(op) => op.resolve(x, y),
                             None => f64::NAN
                         }
@@ -82,11 +92,17 @@ impl NumberNode {
                     NumberOrOperation::Number(number) => {
                         match number {
                             ConstantOrVariable::Constant(c) => *c,
-                            ConstantOrVariable::XVariable => x,
+                            ConstantOrVariable::XVariable => *x,
                             ConstantOrVariable::NegativeXVariable => -1.0 * x,
-                            ConstantOrVariable::YVariable => y,
+                            ConstantOrVariable::YVariable => *y,
                             ConstantOrVariable::NegativeYVariable => -1.0 * y,
                             ConstantOrVariable::Nan => f64::NAN
+                        }
+                    }
+                    NumberOrOperation::Comm(comm) => {
+                        match comm {
+                            Some(comm) => comm.resolve(x, y),
+                            None => f64::NAN
                         }
                     }
                 };
@@ -121,9 +137,9 @@ impl NumberNode {
     }
 }
 
-impl EquationNode {
+impl DualNode {
     // resolve the operation into a number (or not a number)
-    fn resolve(&self, x: f64, y: f64) -> f64 {
+    fn resolve(&self, x: &f64, y: &f64) -> f64 {
         if self.first_operand.is_none() || self.second_operand.is_none() {
             f64::NAN
         }
@@ -136,11 +152,35 @@ impl EquationNode {
         }
     }
 
-    pub fn new(first_operand: Option<NumberNode>, operation: DualOperation, second_operand: Option<NumberNode>) -> Self {
+    pub fn new(first_operand: Option<NumberNode>, operation: DualOrderOperation, second_operand: Option<NumberNode>) -> Self {
         Self {
             first_operand,
             operation,
             second_operand
         }
+    }
+}
+
+impl CommNode {
+    
+    // resolve the operation into a number (or not a number)
+    fn resolve(&self, x: &f64, y: &f64) -> f64 {
+
+        let mut total = 0.0;
+
+        match self.operation {
+            CommOperation::Multiply => {
+                for n in self.numbers {
+                    total *= n.resolve(&x, &y)
+                }
+            }
+            CommOperation::Plus => {
+                for n in self.numbers {
+                    total += n.resolve(&x, &y)
+                }
+            }
+        }
+
+        total
     }
 }

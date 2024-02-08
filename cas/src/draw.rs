@@ -25,8 +25,8 @@ pub fn point_check(left_expression: Option<&NumberNode>, right_expression: Optio
         let mut index = 0;
         for i in -1..2 {
             for j in -1..2 {
-                fov[index] = (left_expression.unwrap().resolve(x + (j as f64*x_scale), y + (i as f64*y_scale)), 
-                    right_expression.unwrap().resolve(x + (j as f64*x_scale), y + (i as f64*y_scale)));
+                fov[index] = (left_expression.unwrap().resolve(&(x + (j as f64*x_scale)), &(y + (i as f64*y_scale))), 
+                    right_expression.unwrap().resolve(&(x + (j as f64*x_scale)), &(y + (i as f64*y_scale))));
                 index += 1;
             }
         }
@@ -41,7 +41,7 @@ pub fn point_check(left_expression: Option<&NumberNode>, right_expression: Optio
         }
 
         // not nan
-        pass = pass && !(left_expression.unwrap().resolve(x, y).is_nan() || right_expression.unwrap().resolve(x, y).is_nan());
+        pass = pass && !(left_expression.unwrap().resolve(&x, &y).is_nan() || right_expression.unwrap().resolve(&x, &y).is_nan());
 
         pass
     }
