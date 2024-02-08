@@ -1,8 +1,7 @@
-# simple-cas
+# cas-from-scratch
 
-A rudimentary CLI computer algebra system made from scratch in Rust, with no external crates.
-
-This uses an entirely custom expression parser, so it will not be as practical as other packages.
+A rudimentary computer algebra system made from scratch in Rust, using no external crates/libraries.
+This was made for my own learning, and for fun
 
 #### Capabilities
 - Parsing expressions
@@ -11,6 +10,7 @@ This uses an entirely custom expression parser, so it will not be as practical a
 - Simplifying expressions (todo)
 
 #### Expressions
+This uses an entirely custom expression parser, so it will not be as practical as other packages.       
 Expressions need to be in prefix notation seperated by spaces.
 
 - s = sine
