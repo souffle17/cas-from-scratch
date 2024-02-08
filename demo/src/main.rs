@@ -1,13 +1,6 @@
 use std::io::{self, Write};
 
-use compute::NumberNode;
-
-use crate::parser::generate_tree;
-
-mod compute;
-mod parser;
-mod draw;
-mod simplify;
+use simple_cas::{compute::NumberNode, parser::generate_tree, draw, simplify};
 
 fn memory_edit(slot_1: &mut (String, Option<NumberNode>), slot_2: &mut (String, Option<NumberNode>)) {
 
@@ -133,7 +126,32 @@ fn compute_number(slot_1: Option<&NumberNode>, slot_2: Option<&NumberNode>) {
 
     }
 }
+fn simplify_slot(slot_1: Option<&NumberNode>, slot_2: Option<&NumberNode>) {
+    let mut input: String = "".to_string();
+    let _ = io::stdout().flush();
 
+    print!("Select an expression: ");
+    let _ = io::stdout().flush();
+
+    let _ = io::stdin().read_line(&mut input).is_ok();
+    input = input.trim_end().to_string();
+
+    let func = match str::parse::<i32>(&input) {
+        Ok(j) => {
+            match j {
+                1 => {
+                    slot_1
+                },
+                2 => {
+                    slot_2
+                }
+                _ => {println!("Slot not found"); None},
+            }
+        }
+        Err(_) => {println!("Slot not found"); None},
+    };
+
+}
 fn main() {
     let mut input: String = "".to_string();
     let mut slot_1: (String, Option<NumberNode>) = ("".to_string(), None);

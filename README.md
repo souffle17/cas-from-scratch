@@ -1,7 +1,7 @@
 # cas-from-scratch
 
-A rudimentary computer algebra system made from scratch in Rust, using no external crates/libraries.
-This was made for my own learning, and for fun
+A rudimentary computer algebra system made from scratch in Rust, using no external crates/libraries.       
+This was made for fun/my own learning
 
 #### Capabilities
 - Parsing expressions
