@@ -24,7 +24,7 @@ pub enum SingleOperation{
     Sqrt
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum NumberOrOperation {
     Double(Option<DualNode>),
     Single(Option<NumberNode>),
@@ -40,13 +40,13 @@ pub enum ConstantOrVariable {
 }
 
 // setting up the equation as a tree of operations
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NumberNode {
     pub value: Option<Box<NumberOrOperation>>,
     pub operation: Option<SingleOperation>
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DualNode {
     pub first_operand: Option<NumberNode>,
     pub operation: Option<DualOperation>,

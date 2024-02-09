@@ -126,7 +126,7 @@ fn compute_number(slot_1: Option<&NumberNode>, slot_2: Option<&NumberNode>) {
 
     }
 }
-fn simplify_slot(slot_1: Option<&NumberNode>, slot_2: Option<&NumberNode>) {
+fn simplify_slot(slot_1: &mut Option<NumberNode>, slot_2: &mut Option<NumberNode>) {
     let mut input: String = "".to_string();
     let _ = io::stdout().flush();
 
@@ -136,20 +136,21 @@ fn simplify_slot(slot_1: Option<&NumberNode>, slot_2: Option<&NumberNode>) {
     let _ = io::stdin().read_line(&mut input).is_ok();
     input = input.trim_end().to_string();
 
-    let func = match str::parse::<i32>(&input) {
+    match str::parse::<i32>(&input) {
         Ok(j) => {
             match j {
                 1 => {
-                    slot_1 = simplify::simplify(slot_1)
+                    //*slot_1 = simplify::simplify(*slot_1.clone())
                 },
                 2 => {
-                    slot_2 = simplify::simplify(slot_2)
+                    //*slot_2 = simplify::simplify(*slot_2.clone())
                 }
-                _ => {println!("Slot not found"); None},
+                _ => println!("Slot not found"),
             }
         }
-        Err(_) => {println!("Slot not found"); None},
+        Err(_) => println!("Slot not found"),
     };
+    
 
 }
 fn main() {
@@ -167,7 +168,7 @@ fn main() {
         println!("2. Print expression tree");
         println!("3. Compute value from expression");
         println!("4. Graph expressions as equation");
-        println!("5. Simplify an expression");
+        //println!("5. Simplify an expression");
         print!("Pick an operation by number: ");
         let _ = io::stdout().flush();
 
@@ -184,7 +185,7 @@ fn main() {
                     2 => print_memory(&slot_1, &slot_2),
                     3 => compute_number(slot_1.1.as_ref(), slot_2.1.as_ref()),
                     4 => draw::draw_prompt(slot_1.1.as_ref(), slot_2.1.as_ref()),
-                    5 => simplify_slot(&mut slot_1, &mut slot_2),
+                    //5 => simplify_slot(&mut slot_1, &mut slot_2),
                     _ => println!("Invalid operation")
                 }
             }
