@@ -122,7 +122,7 @@ fn operator_priority(symbol: &AlgebraSymbol) -> Option<i32> {
     }
 }
 
-fn operator_insert(input: &mut Vec<AlgebraSymbol>, symbol: AlgebraSymbol) {
+fn operator_insert(input: &mut Vec<AlgebraSymbol>, output: &mut Vec<AlgebraSymbol>, symbol: AlgebraSymbol) {
     let priority = operator_priority(&symbol);
 
     if priority.is_none() {
@@ -130,17 +130,13 @@ fn operator_insert(input: &mut Vec<AlgebraSymbol>, symbol: AlgebraSymbol) {
     }
 
     let priority = priority.unwrap();
-    for index in (0..input.len()).rev() {
-        let temp_priority = operator_priority(&input[index]).unwrap_or(-1);
-        if temp_priority >= priority || 
-                matches!(input[index], AlgebraSymbol::Grouping(_)) {
-            input.insert(index+1, symbol.clone());
-            return;
-        }
+
+    while input.last().is_some_and(|o| operator_priority(o).is_some_and(|p| p <= priority) ) &&
+    !input.last().is_some_and(|s| matches!(s, AlgebraSymbol::Grouping(_))){
+        output.push(input.pop().unwrap());
     }
-    if input.is_empty() {
-        input.insert(0, symbol);
-    }
+    
+    input.push(symbol)
 }
 
 fn pop_until_paren(operators: &mut Vec<AlgebraSymbol>, output: &mut Vec<AlgebraSymbol>) {
@@ -166,12 +162,16 @@ pub fn generate_tree(input: Vec<AlgebraSymbol>) -> Option<NumberNode> {
             AlgebraSymbol::Grouping(OpeningOrClosing::Closing) => pop_until_paren(&mut operators, &mut postfix),
             AlgebraSymbol::Number(_) => postfix.push(symbol),
             AlgebraSymbol::Variable(_) => postfix.push(symbol),
-            AlgebraSymbol::Dual(_) => operator_insert(&mut operators, symbol),
-            AlgebraSymbol::Single(_) => operator_insert(&mut operators, symbol),
+            AlgebraSymbol::Dual(_) => operator_insert(&mut operators, &mut postfix, symbol),
+            AlgebraSymbol::Single(_) => operator_insert(&mut operators, &mut postfix, symbol),
         }
+
+        dbg!(&operators);
     }
 
     pop_until_paren(&mut operators, &mut postfix);
+
+    dbg!(&postfix);
     
     let mut numbers: Vec<NumberNode> = Vec::new();
 
