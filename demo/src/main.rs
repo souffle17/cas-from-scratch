@@ -130,7 +130,7 @@ fn simplify_slot(slot_1: Option<&NumberNode>, slot_2: Option<&NumberNode>) {
     let mut input: String = "".to_string();
     let _ = io::stdout().flush();
 
-    print!("Select an expression: ");
+    print!("Select an expression to simplify: ");
     let _ = io::stdout().flush();
 
     let _ = io::stdin().read_line(&mut input).is_ok();
@@ -140,10 +140,10 @@ fn simplify_slot(slot_1: Option<&NumberNode>, slot_2: Option<&NumberNode>) {
         Ok(j) => {
             match j {
                 1 => {
-                    slot_1
+                    slot_1 = simplify::simplify(slot_1)
                 },
                 2 => {
-                    slot_2
+                    slot_2 = simplify::simplify(slot_2)
                 }
                 _ => {println!("Slot not found"); None},
             }
@@ -184,7 +184,7 @@ fn main() {
                     2 => print_memory(&slot_1, &slot_2),
                     3 => compute_number(slot_1.1.as_ref(), slot_2.1.as_ref()),
                     4 => draw::draw_prompt(slot_1.1.as_ref(), slot_2.1.as_ref()),
-                    5 => simplify::simplify(),
+                    5 => simplify_slot(&mut slot_1, &mut slot_2),
                     _ => println!("Invalid operation")
                 }
             }

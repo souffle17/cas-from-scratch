@@ -10,17 +10,22 @@ This was made for fun/my own learning
 - Simplifying expressions (todo)
 
 #### Expressions
-This uses an entirely custom expression parser, so it will not be as practical as other packages.       
-Expressions need to be in prefix notation seperated by spaces.
+This uses an entirely custom expression parser, so it may be more barebones than other CAS implementations
 
-- s = sine
-- c = cosine
-- t = tangent
-- a = absolute value
-- q = square root
-- l = log
-- e = exponent
-- x and y are the variables
+x and y are variables
+##### Symbols:
+- x + y
+- x - y
+- x * y
+- x / y
+- sin x
+- cos x
+- tan x
+- abs x
+- sqrt x
+- x log y
+- x ^ y
+- (x + y) * x
 
 ## Graphing
 This program will print an implicit graph in the command line given two user-provided expressions.
