@@ -1,12 +1,12 @@
 use crate::compute::{ConstantOrVariable, DualNode, DualOperation, NumberNode, NumberOrOperation, SingleOperation};
 
-#[derive(Clone)]pub 
-enum OpeningOrClosing {
+#[derive(Debug, Clone)]
+pub enum OpeningOrClosing {
     Opening,
     Closing
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum AlgebraSymbol {
     Grouping(OpeningOrClosing),
     Number(ConstantOrVariable),
@@ -121,19 +121,14 @@ fn operator_insert(input: &mut Vec<AlgebraSymbol>, symbol: AlgebraSymbol) {
 
     let priority = priority.unwrap();
 
-    let mut index = input.len()-1;
-
-   loop {
+    for index in (0..input.len()).rev() {
         if operator_priority(&input[index]) >= Some(priority) || 
             index == 0 || 
-                matches!(input[0.max(index-1)], AlgebraSymbol::Grouping(_)) {
+                matches!(input[index-1], AlgebraSymbol::Grouping(_)) {
             
             input.insert(index+1, symbol.clone());
-        }
-        if index == 0 {
             break;
         }
-        index -= 1;
     }
 }
 

@@ -108,7 +108,7 @@ pub fn make_graph(left_side: Option<&NumberNode>, right_side: Option<&NumberNode
     let mut graph: Vec<Vec<char>> = Vec::new();
 
     //coordinate axis
-    for i in (y_min..y_max + 1).rev() {
+    for i in y_min..y_max + 1 {
         let mut row: Vec<char> = Vec::new();
         for j in x_min..x_max + 1 {
             if i != 0 {
@@ -139,14 +139,14 @@ pub fn make_graph(left_side: Option<&NumberNode>, right_side: Option<&NumberNode
     else {
         let mut output: String = String::new();
 
-        for i in y_min..(y_max + 1) {
+        for i in (y_min..(y_max + 1)).rev() {
             for j in x_min..(x_max + 1) {
                 if point_check(left_side, right_side, j as f64 * x_scale, i as f64 * y_scale,  x_scale, y_scale) {
-                    graph[(y_max - i) as usize][(x_max - j) as usize] = '•';
+                    graph[(i - y_min) as usize][(j - x_min) as usize] = '•';
                 }
             }
 
-            for char in &graph[(y_max - i) as usize] {
+            for char in &graph[(i - y_min) as usize] {
                 output.push(*char);
             }
     
