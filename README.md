@@ -25,7 +25,7 @@ x and y are variables
 - sqrt x
 - x log y
 - x ^ y
-- (x + y) * x
+- ( x + y ) * x
 
 ## Graphing
 This program will print an implicit graph in the command line given two user-provided expressions.
