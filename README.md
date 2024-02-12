@@ -6,8 +6,8 @@ This was made for fun/my own learning
 #### Capabilities
 - Parsing expressions
 - Displaying expression trees
-- Implicit graphing of equations
-- Simplifying expressions (partially working)
+- [Implicit graphing of equations](#graphing)
+- [Simplifying expressions](#simplification)
 
 #### Expressions
 This uses an entirely custom expression parser, so it may be more barebones than other CAS implementations
@@ -43,8 +43,9 @@ Expressions in memory:
 2. Print expression tree
 3. Compute value from expression
 4. Graph expressions as equation
+5. Simplify an expression
 Pick an operation by number: 4
-x-axis minimum (default -10): 
+x-axis minimum (default -10):
 x-axis maximum (default 10): 
 y-axis minimum (default -10): 
 y-axis maximum (default 10): 
@@ -118,4 +119,37 @@ y scale (default 1.0): 0.3
                                                                    |
                                                                    |
                                                                    |
+
+```
+
+## Simplification
+This function is partially working, and currently combines all constant values
+
+### Example
+```
+Expressions in memory: 
+1: ( 15 * 2.3 ) * x - ( y + 4 - 3 ) / 3 log 9
+2: 
+
+0. Quit
+1. Enter an expression
+2. Print expression tree
+3. Compute value from expression
+4. Graph expressions as equation
+5. Simplify an expression
+Pick an operation by number: 5
+Select an expression to simplify: 1
+_______________________________________________________________________________________
+
+Expressions in memory:
+1:  ( ( 34.5 * x ) - ( ( ( y + 4 ) - 3 ) / 0.5 ) )
+2:
+
+0. Quit
+1. Enter an expression
+2. Print expression tree
+3. Compute value from expression
+4. Graph expressions as equation
+5. Simplify an expression
+Pick an operation by number:
 ```
