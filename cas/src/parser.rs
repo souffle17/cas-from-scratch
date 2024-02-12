@@ -17,13 +17,12 @@ pub enum AlgebraSymbol {
 
 fn match_operator(input: &str) -> AlgebraSymbol {
     match input {
-        //long operators
+        //single operators
         "sin" => AlgebraSymbol::Single(SingleOperation::Sin),
         "cos" => AlgebraSymbol::Single(SingleOperation::Cos),
         "tan" => AlgebraSymbol::Single(SingleOperation::Tan),
         "sqrt" => AlgebraSymbol::Single(SingleOperation::Sqrt),
         "abs" => AlgebraSymbol::Single(SingleOperation::Abs),
-        "log" => AlgebraSymbol::Dual(DualOperation::Log),
 
         //variables
         "x" => AlgebraSymbol::Variable(ConstantOrVariable::XVariable),
@@ -33,12 +32,14 @@ fn match_operator(input: &str) -> AlgebraSymbol {
         "(" => AlgebraSymbol::Grouping(OpeningOrClosing::Opening),
         ")" => AlgebraSymbol::Grouping(OpeningOrClosing::Closing),
 
-        //short operators
+        //dual operators
         "+" => AlgebraSymbol::Dual(DualOperation::Plus),
         "-" => AlgebraSymbol::Dual(DualOperation::Minus),
         "*" => AlgebraSymbol::Dual(DualOperation::Multiply),
         "/" => AlgebraSymbol::Dual(DualOperation::Divide),
         "^" => AlgebraSymbol::Dual(DualOperation::Exp),
+        "log" => AlgebraSymbol::Dual(DualOperation::Log),
+
         _ => AlgebraSymbol::Number(ConstantOrVariable::Nan)
         
     }
@@ -245,6 +246,7 @@ pub fn expression_to_string(input: Option<NumberNode>) -> String {
             match *v {
                 NumberOrOperation::Double(dual) => {
                     if let Some(dual) = dual {
+                        output.push('(');
                         if let Some(first) = dual.first_operand {
                             output.push_str(&expression_to_string(Some(first)));
                         }
@@ -257,6 +259,8 @@ pub fn expression_to_string(input: Option<NumberNode>) -> String {
                         if let Some(second) = dual.second_operand {
                             output.push_str(&expression_to_string(Some(second)));
                         }
+                        output.push(' ');
+                        output.push(')');
                     }
                 },
                 NumberOrOperation::Single(opt_node) => {
@@ -265,7 +269,10 @@ pub fn expression_to_string(input: Option<NumberNode>) -> String {
                             let symbol = AlgebraSymbol::Single(op);
                             output.push_str(&symbol_to_string(symbol));
                             output.push(' ');
+                            output.push('(');
                             output.push_str(&expression_to_string(Some(node)));
+                            output.push(' ');
+                            output.push(')');
                         }
                     }
                 },

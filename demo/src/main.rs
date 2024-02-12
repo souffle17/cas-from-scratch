@@ -1,6 +1,13 @@
 use std::io::{self, Write};
 
-use simple_cas::{compute::NumberNode, draw, parser::{expression_to_string, generate_tree_from_string}, simplify::simplify};
+use simple_cas::{
+    compute::NumberNode, 
+    draw::draw_prompt, 
+    parser::{
+        expression_to_string, 
+        generate_tree_from_string}, 
+    simplify::simplify
+};
 
 fn memory_edit(slot_1: &mut (String, Option<NumberNode>), slot_2: &mut (String, Option<NumberNode>)) {
 
@@ -170,7 +177,7 @@ fn main() {
         println!("2. Print expression tree");
         println!("3. Compute value from expression");
         println!("4. Graph expressions as equation");
-        //println!("5. Simplify an expression");
+        println!("5. Simplify an expression");
         print!("Pick an operation by number: ");
         let _ = io::stdout().flush();
 
@@ -186,7 +193,7 @@ fn main() {
                     1 => memory_edit(&mut slot_1, &mut slot_2),
                     2 => print_memory(&slot_1, &slot_2),
                     3 => compute_number(slot_1.1.as_ref(), slot_2.1.as_ref()),
-                    4 => draw::draw_prompt(slot_1.1.as_ref(), slot_2.1.as_ref()),
+                    4 => draw_prompt(slot_1.1.as_ref(), slot_2.1.as_ref()),
                     5 => simplify_slot(&mut slot_1, &mut slot_2),
                     _ => println!("Invalid operation")
                 }
