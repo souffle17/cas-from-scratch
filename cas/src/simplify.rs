@@ -2,8 +2,8 @@ use crate::compute::{ConstantOrVariable, NumberNode, NumberOrOperation};
 
 fn constant_to_node(constant: f64) -> Option<NumberNode> {
     Some(
-        NumberNode::new(
-            Some(
+        NumberNode {
+            value: Some(
                 Box::new(NumberOrOperation::
                     Number(ConstantOrVariable::
                         Constant(
@@ -12,7 +12,8 @@ fn constant_to_node(constant: f64) -> Option<NumberNode> {
                     )
                 )
             ), 
-            None)
+            operation: None
+        }
     )
 }
 

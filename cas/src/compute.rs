@@ -114,13 +114,6 @@ impl NumberNode {
             f64::NAN
         }
     }
-
-    pub fn new(value: Option<Box<NumberOrOperation>>, operation: Option<SingleOperation>) -> Self {
-        Self {
-            value, 
-            operation
-        }
-    }
 }
 
 impl DualNode {
@@ -131,14 +124,6 @@ impl DualNode {
         }
         else {
             f64::NAN
-        }
-    }
-
-    pub fn new(first_operand: Option<NumberNode>, operation: Option<DualOperation>, second_operand: Option<NumberNode>) -> Self {
-        Self {
-            first_operand,
-            operation,
-            second_operand
         }
     }
 }

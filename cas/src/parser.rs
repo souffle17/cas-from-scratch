@@ -197,19 +197,19 @@ pub fn generate_tree(input: Vec<AlgebraSymbol>) -> Option<NumberNode> {
 
     for symbol in postfix {
         match symbol {
-            AlgebraSymbol::Number(n) => numbers.push(NumberNode::new(Some(Box::new(NumberOrOperation::Number(n))), None)),
-            AlgebraSymbol::Variable(x) => numbers.push(NumberNode::new(Some(Box::new(NumberOrOperation::Number(x))), None)),
+            AlgebraSymbol::Number(n) |
+            AlgebraSymbol::Variable(n) => numbers.push(NumberNode {value: Some(Box::new(NumberOrOperation::Number(n))), operation: None}),
             AlgebraSymbol::Dual(op) => {
                 let second_operand = numbers.pop();
                 let first_operand = numbers.pop();
 
-                let dual_node = DualNode::new(first_operand, Some(op), second_operand);
+                let dual_node = DualNode {first_operand, operation: Some(op), second_operand};
                 numbers.push(
-                    NumberNode::new(Some(Box::new(NumberOrOperation::Double(Some(dual_node)))), None)
+                    NumberNode {value: Some(Box::new(NumberOrOperation::Double(Some(dual_node)))), operation: None}
                 );
             }
             AlgebraSymbol::Single(op) => {
-                let new_node = NumberNode::new(Some(Box::new(NumberOrOperation::Single(numbers.pop()))), Some(op));
+                let new_node = NumberNode {value: Some(Box::new(NumberOrOperation::Single(numbers.pop()))), operation: Some(op)};
                 numbers.push(new_node);
             }
             _ => {}
