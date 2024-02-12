@@ -22,7 +22,7 @@ fn constant_check(tree: Option<&NumberNode>) -> Option<NumberNode> {
     }
     else if tree.unwrap().resolve(&f64::NAN, &f64::NAN).is_nan() {
         if let Some(tree) = tree {
-            
+            todo!()
         }
         else {
             None
