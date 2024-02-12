@@ -255,7 +255,6 @@ pub fn expression_to_string(input: Option<NumberNode>) -> String {
                             let symbol = AlgebraSymbol::Dual(op);
                             output.push_str(&symbol_to_string(symbol));
                         }
-                        output.push(' ');
                         if let Some(second) = dual.second_operand {
                             output.push_str(&expression_to_string(Some(second)));
                         }
