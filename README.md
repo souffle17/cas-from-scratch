@@ -7,7 +7,7 @@ This was made for fun/my own learning
 - Parsing expressions
 - Displaying expression trees
 - Implicit graphing of equations
-- Simplifying expressions (todo)
+- Simplifying expressions (partially working)
 
 #### Expressions
 This uses an entirely custom expression parser, so it may be more barebones than other CAS implementations

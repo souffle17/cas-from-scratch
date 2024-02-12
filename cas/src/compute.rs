@@ -1,5 +1,3 @@
-use std::f64::NAN;
-
 //operations that need 2 numbers
 #[derive(Debug, Clone)]
 pub enum DualOperation {

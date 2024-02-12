@@ -44,7 +44,48 @@ fn match_operator(input: &str) -> AlgebraSymbol {
     }
 }
 
-pub fn string_to_symbol(input: &Vec<String>) -> Vec<AlgebraSymbol> {
+fn symbol_to_string(input: AlgebraSymbol) -> String {
+    match input {
+        AlgebraSymbol::Single(op) => {
+            match op {
+                SingleOperation::Sin => "sin".to_string(),
+                SingleOperation::Cos => "cos".to_string(),
+                SingleOperation::Tan => "tan".to_string(),
+                SingleOperation::Abs => "abs".to_string(),
+                SingleOperation::Sqrt => "sqrt".to_string()
+            }
+        }
+
+        AlgebraSymbol::Grouping(paren) => {
+            match paren {
+                OpeningOrClosing::Opening => "(".to_string(),
+                OpeningOrClosing::Closing => ")".to_string()
+            }
+        }
+
+        AlgebraSymbol::Dual(dual) => {
+            match dual {
+                DualOperation::Plus => "+".to_string(),
+                DualOperation::Minus => "-".to_string(),
+                DualOperation::Multiply => "*".to_string(),
+                DualOperation::Divide => "/".to_string(),
+                DualOperation::Exp => "^".to_string(),
+                DualOperation::Log => "log".to_string()
+            }
+        }
+
+        AlgebraSymbol::Number(n) | AlgebraSymbol::Variable(n) => {
+            match n {
+                ConstantOrVariable::Constant(n) => n.to_string(),
+                ConstantOrVariable::XVariable => "x".to_string(),
+                ConstantOrVariable::YVariable => "y".to_string(),
+                ConstantOrVariable::Nan => "Nan".to_string()
+            }
+        }
+    }
+}
+
+pub fn string_vec_to_symbol_vec(input: &Vec<String>) -> Vec<AlgebraSymbol> {
     let mut symbol_vec: Vec<AlgebraSymbol> = Vec::new();
 
     for segment in input {
@@ -191,7 +232,50 @@ pub fn generate_tree_from_string(input: &str) -> Option<NumberNode> {
 
     let input_vec = &split(input);
 
-    let symbol_vec = string_to_symbol(input_vec);
+    let symbol_vec = string_vec_to_symbol_vec(input_vec);
 
     generate_tree(symbol_vec)
+}
+
+pub fn expression_to_string(input: Option<NumberNode>) -> String {
+    let mut output = " ".to_string();
+
+    if let Some(input) = input {
+        if let Some(v) = input.value {
+            match *v {
+                NumberOrOperation::Double(dual) => {
+                    if let Some(dual) = dual {
+                        if let Some(first) = dual.first_operand {
+                            output.push_str(&expression_to_string(Some(first)));
+                        }
+                        output.push(' ');
+                        if let Some(op) = dual.operation {
+                            let symbol = AlgebraSymbol::Dual(op);
+                            output.push_str(&symbol_to_string(symbol));
+                        }
+                        output.push(' ');
+                        if let Some(second) = dual.second_operand {
+                            output.push_str(&expression_to_string(Some(second)));
+                        }
+                    }
+                },
+                NumberOrOperation::Single(opt_node) => {
+                    if let Some(node) = opt_node {
+                        if let Some(op) = node.operation.clone() {
+                            let symbol = AlgebraSymbol::Single(op);
+                            output.push_str(&symbol_to_string(symbol));
+                            output.push(' ');
+                            output.push_str(&expression_to_string(Some(node)));
+                        }
+                    }
+                },
+                NumberOrOperation::Number(n) => {
+                    let symbol = AlgebraSymbol::Number(n);
+                    output.push_str(&symbol_to_string(symbol));
+                },
+            }
+        }
+    }
+
+    output
 }

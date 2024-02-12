@@ -1,6 +1,6 @@
 use std::io::{self, Write};
 
-use simple_cas::{compute::NumberNode, parser::generate_tree_from_string, draw, simplify};
+use simple_cas::{compute::NumberNode, draw, parser::{expression_to_string, generate_tree_from_string}, simplify::simplify};
 
 fn memory_edit(slot_1: &mut (String, Option<NumberNode>), slot_2: &mut (String, Option<NumberNode>)) {
 
@@ -126,7 +126,7 @@ fn compute_number(slot_1: Option<&NumberNode>, slot_2: Option<&NumberNode>) {
 
     }
 }
-fn simplify_slot(slot_1: &mut Option<NumberNode>, slot_2: &mut Option<NumberNode>) {
+fn simplify_slot(slot_1: &mut (String, Option<NumberNode>), slot_2: &mut (String, Option<NumberNode>)) {
     let mut input: String = "".to_string();
     let _ = io::stdout().flush();
 
@@ -140,10 +140,12 @@ fn simplify_slot(slot_1: &mut Option<NumberNode>, slot_2: &mut Option<NumberNode
         Ok(j) => {
             match j {
                 1 => {
-                    //*slot_1 = simplify::simplify(*slot_1.clone())
+                    slot_1.1 = simplify(slot_1.1.clone());
+                    slot_1.0 = expression_to_string(slot_1.1.clone());
                 },
                 2 => {
-                    //*slot_2 = simplify::simplify(*slot_2.clone())
+                    slot_2.1 = simplify(slot_2.1.clone());
+                    slot_2.0 = expression_to_string(slot_2.1.clone());
                 }
                 _ => println!("Slot not found"),
             }
@@ -185,7 +187,7 @@ fn main() {
                     2 => print_memory(&slot_1, &slot_2),
                     3 => compute_number(slot_1.1.as_ref(), slot_2.1.as_ref()),
                     4 => draw::draw_prompt(slot_1.1.as_ref(), slot_2.1.as_ref()),
-                    //5 => simplify_slot(&mut slot_1, &mut slot_2),
+                    5 => simplify_slot(&mut slot_1, &mut slot_2),
                     _ => println!("Invalid operation")
                 }
             }
