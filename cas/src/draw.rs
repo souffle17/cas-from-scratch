@@ -22,11 +22,18 @@ pub fn point_check(left_expression: Option<&NumberNode>, right_expression: Optio
             (f64::NAN, f64::NAN)
         ];
 
+        let (left_expression, right_expression) = if let (Some(left_expression), Some(right_expression)) = (left_expression, right_expression) {
+            (left_expression, right_expression)
+        }
+        else {
+            return false;
+        };
+
         let mut index = 0;
         for i in -1..2 {
             for j in -1..2 {
-                fov[index] = (left_expression.unwrap().resolve(&(x + (j as f64*x_scale)), &(y + (i as f64*y_scale))), 
-                    right_expression.unwrap().resolve(&(x + (j as f64*x_scale)), &(y + (i as f64*y_scale))));
+                fov[index] = (left_expression.resolve(&(x + (j as f64*x_scale)), &(y + (i as f64*y_scale))), 
+                    right_expression.resolve(&(x + (j as f64*x_scale)), &(y + (i as f64*y_scale))));
                 index += 1;
             }
         }
@@ -41,7 +48,7 @@ pub fn point_check(left_expression: Option<&NumberNode>, right_expression: Optio
         }
 
         // not nan
-        pass = pass && !(left_expression.unwrap().resolve(&x, &y).is_nan() || right_expression.unwrap().resolve(&x, &y).is_nan());
+        pass = pass && !(left_expression.resolve(&x, &y).is_nan() || right_expression.resolve(&x, &y).is_nan());
 
         pass
     }
@@ -57,52 +64,46 @@ pub fn make_graph(left_side: Option<&NumberNode>, right_side: Option<&NumberNode
     let y_scale_in = str::parse::<f64>(&parameters[5]);
 
     
-    let x_scale = match x_scale_in {
-        Ok(_) => x_scale_in.unwrap(),
-        Err(_) => {
-            eprintln!("invalid x scale, using default");
-            1.0
-        },
+    let x_scale = if let Ok(x_scale) = x_scale_in {
+        x_scale
+    } else {
+        eprintln!("invalid x scale, using default");
+        1.0
     };
     
-    let y_scale = match y_scale_in {
-        Ok(_) => y_scale_in.unwrap(),
-        Err(_) => {
-            eprintln!("invalid y scale, using default");
-            1.0
-        },
+    let y_scale = if let Ok(y_scale) = y_scale_in {
+        y_scale
+    } else {
+        eprintln!("invalid y scale, using default");
+        1.0
     };
 
-    let x_min = match x_min_in {
-        Ok(_) => (x_min_in.unwrap() / x_scale).round() as i64,
-        Err(_) => {
-            eprintln!("invalid x min, using default"); 
-            -10
-        },
+    let x_min = if let Ok(x_min) = x_min_in {
+        (x_min / x_scale).round() as i64
+    } else {
+        eprintln!("invalid x min, using default"); 
+        -10
     };
     
-    let x_max = match x_max_in {
-        Ok(_) => (x_max_in.unwrap() / x_scale).round() as i64,
-        Err(_) => {
-            eprintln!("invalid x max, using default"); 
-            10
-        },
+    let x_max = if let Ok(x_max) = x_max_in {
+        (x_max / x_scale).round() as i64
+    } else {
+        eprintln!("invalid x max, using default"); 
+        10
     };
 
-    let y_min = match y_min_in {
-        Ok(_) => (y_min_in.unwrap() / y_scale).round() as i64,
-        Err(_) => {
-            eprintln!("invalid y min, using default"); 
-            -10
-        },
+    let y_min = if let Ok(y_min) = y_min_in {
+        (y_min / y_scale).round() as i64
+    } else {
+        eprintln!("invalid y min, using default"); 
+        -10
     };
     
-    let y_max = match y_max_in {
-        Ok(_) => (y_max_in.unwrap() / y_scale).round() as i64,
-        Err(_) => {
-            eprintln!("invalid y max, using default"); 
-            10
-        },
+    let y_max = if let Ok(y_max) = y_max_in {
+        (y_max / y_scale).round() as i64
+    } else {
+        eprintln!("invalid y max, using default"); 
+        10
     };
 
     let mut graph: Vec<Vec<char>> = Vec::new();

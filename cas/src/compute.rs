@@ -1,7 +1,4 @@
-//commutative operations
-#[derive(Debug)]
-pub enum CommOperation {
-}
+use std::f64::NAN;
 
 //operations that need 2 numbers
 #[derive(Debug, Clone)]
@@ -71,50 +68,52 @@ fn enum_compute_dual(a: f64, b: f64, o: &Option<DualOperation>) -> f64 {
 impl NumberNode {
     // resolve the equation into a number (or not a number)
     pub fn resolve(&self, x: &f64, y: &f64) -> f64 {
-        match self.value {
-            Some(_) => {
-                let n = match self.value.as_ref().unwrap().as_ref() {
-                    NumberOrOperation::Double (op) => {
-                        match op {
-                            Some(op) => op.resolve(x, y),
-                            None => f64::NAN
-                       }
-                    },
-                    NumberOrOperation::Single(op) => {
-                        match op {
-                            Some(op) => op.resolve(x, y),
-                            None => f64::NAN
-                        }
+        if let Some(v) = self.value.as_deref() {
+            let n = match v {
+                NumberOrOperation::Double (op) => {
+                    if let Some(op) = op {
+                        op.resolve(x, y)
                     }
-                    NumberOrOperation::Number(number) => {
-                        match number {
-                            ConstantOrVariable::Constant(c) => *c,
-                            ConstantOrVariable::XVariable => *x,
-                            ConstantOrVariable::YVariable => *y,
-                            ConstantOrVariable::Nan => f64::NAN
-                        }
+                    else {
+                        f64::NAN
                     }
-                };
-
-                if n.is_nan() {
-                    f64::NAN
+                },
+                NumberOrOperation::Single(op) => {
+                    if let Some(op) = op {
+                        op.resolve(x, y)
+                    }
+                    else {
+                        f64::NAN
+                    }
                 }
-                else {
-                    match self.operation.as_ref() {
-                        Some(o) => {
-                            match o {
-                                SingleOperation::Sin => n.sin(),
-                                SingleOperation::Cos => n.cos(),
-                                SingleOperation::Tan => n.tan(),
-                                SingleOperation::Abs => n.abs(),
-                                SingleOperation::Sqrt => n.sqrt()
-                            }
-                        }
-                        None => n
+                NumberOrOperation::Number(number) => {
+                    match number {
+                        ConstantOrVariable::Constant(c) => *c,
+                        ConstantOrVariable::XVariable => *x,
+                        ConstantOrVariable::YVariable => *y,
+                        ConstantOrVariable::Nan => f64::NAN
                     }
+                }
+            };
+
+            if n.is_nan() {
+                f64::NAN
+            }
+            else if let Some(o) = self.operation.as_ref() {
+                match o {
+                    SingleOperation::Sin => n.sin(),
+                    SingleOperation::Cos => n.cos(),
+                    SingleOperation::Tan => n.tan(),
+                    SingleOperation::Abs => n.abs(),
+                    SingleOperation::Sqrt => n.sqrt()
                 }
             }
-            None => f64::NAN
+            else {
+                n
+            }
+        }
+        else {
+            f64::NAN
         }
     }
 
@@ -129,15 +128,11 @@ impl NumberNode {
 impl DualNode {
     // resolve the operation into a number (or not a number)
     fn resolve(&self, x: &f64, y: &f64) -> f64 {
-        if self.first_operand.is_none() || self.second_operand.is_none() {
-            f64::NAN
+        if let (Some(a), Some(b)) = (self.first_operand.as_ref(), self.second_operand.as_ref()) {
+            enum_compute_dual(a.resolve(x, y), b.resolve(x, y), &self.operation)
         }
         else {
-            let a: f64 = self.first_operand.as_ref().unwrap().resolve(x, y);
-
-            let b: f64 = self.second_operand.as_ref().unwrap().resolve(x, y);
-
-            enum_compute_dual(a, b, &self.operation)
+            f64::NAN
         }
     }
 

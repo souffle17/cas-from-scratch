@@ -1,5 +1,3 @@
-use core::num;
-
 use crate::compute::{ConstantOrVariable, DualNode, DualOperation, NumberNode, NumberOrOperation, SingleOperation};
 
 #[derive(Debug, Clone)]
@@ -52,50 +50,47 @@ pub fn string_to_symbol(input: &Vec<String>) -> Vec<AlgebraSymbol> {
     let mut symbol_vec: Vec<AlgebraSymbol> = Vec::new();
 
     for segment in input {
-        match str::parse::<f64>(segment) {
-            //constants
-            Ok(i) => symbol_vec.push(AlgebraSymbol::Number(ConstantOrVariable::Constant(i))),
-            Err(_) => {
-                if let Some(c) = segment.chars().last() {
-                    //variables
-                    match c {
-                        'x' | 'y' => {
-                            match str::parse::<f64>(&segment[..segment.len()-1]) {
-                                Ok(n) => {
-                                    symbol_vec.push(AlgebraSymbol::Number(ConstantOrVariable::Constant(n)));
-                                    symbol_vec.push(AlgebraSymbol::Dual(DualOperation::Multiply));
-                                    symbol_vec.push(match_single_char(c));
-                                }
-                                Err(_) => {
-                                    match segment.len() {
-                                        1 => {
-                                            symbol_vec.push(match_single_char(c));
-                                        },
-                                        2 => {
-                                            if let '-' = segment.chars().next().unwrap() {
-                                                symbol_vec.push(AlgebraSymbol::Number(ConstantOrVariable::Constant(-1.0)));
-                                                symbol_vec.push(AlgebraSymbol::Dual(DualOperation::Multiply));
-                                                symbol_vec.push(match_single_char(c));
-                                            }
-                                        },
-
-                                        _ => symbol_vec.push(match_long_operator(segment))
-
-                                    }
-                                }
+        if let Ok(i) = str::parse::<f64>(segment) {
+            symbol_vec.push(AlgebraSymbol::Number(ConstantOrVariable::Constant(i)))
+        } else if let Some(c) = segment.chars().last() {
+            //variables
+            match c {
+                'x' | 'y' => if let Ok(n) = str::parse::<f64>(&segment[..segment.len()-1]) {
+                    symbol_vec.push(AlgebraSymbol::Number(ConstantOrVariable::Constant(n)));
+                    symbol_vec.push(AlgebraSymbol::Dual(DualOperation::Multiply));
+                    symbol_vec.push(match_single_char(c));
+                }
+                else {
+                    match segment.len() {
+                        1 => {
+                            symbol_vec.push(match_single_char(c));
+                        },
+                        2 => {
+                            if Some('-') == segment.chars().nth(0) {
+                                symbol_vec.push(AlgebraSymbol::Number(ConstantOrVariable::Constant(-1.0)));
+                                symbol_vec.push(AlgebraSymbol::Dual(DualOperation::Multiply));
+                                symbol_vec.push(match_single_char(c));
                             }
-                        }
-                        _ => {
-                            match str::parse::<f64>(segment) {
-                                Ok(n) => symbol_vec.push(AlgebraSymbol::Number(ConstantOrVariable::Constant(n))),
-                                Err(_) => {
-                                    match segment.len() {
-                                        1 => {
-                                            symbol_vec.push(match_single_char(c));
-                                        },
-                                        _ => symbol_vec.push(match_long_operator(segment))
-                                    }
+                        },
+
+                        _ => symbol_vec.push(match_long_operator(segment))
+
+                    }
+                },
+                _ => {
+                    if let Ok(n) = str::parse::<f64>(segment) {
+                        symbol_vec.push(AlgebraSymbol::Number(ConstantOrVariable::Constant(n)))
+                    } else {
+                        match segment.len() {
+                            1 => {
+                                symbol_vec.push(match_single_char(c));
+                            },
+                            _ => {
+                                if Some('-') == segment.chars().nth(0) {
+                                    symbol_vec.push(AlgebraSymbol::Number(ConstantOrVariable::Constant(-1.0)));
+                                    symbol_vec.push(AlgebraSymbol::Dual(DualOperation::Multiply));
                                 }
+                                symbol_vec.push(match_long_operator(segment));
                             }
                         }
                     }
@@ -125,23 +120,21 @@ fn operator_priority(symbol: &AlgebraSymbol) -> Option<i32> {
 fn operator_insert(input: &mut Vec<AlgebraSymbol>, output: &mut Vec<AlgebraSymbol>, symbol: AlgebraSymbol) {
     let priority = operator_priority(&symbol);
 
-    if priority.is_none() {
-        return;
-    }
+    if let Some(priority) = priority {
 
-    let priority = priority.unwrap();
+        while input.last().is_some_and(|o| operator_priority(o).is_some_and(|p| p <= priority) ) &&
+        !input.last().is_some_and(|s| matches!(s, AlgebraSymbol::Grouping(_))){
+            if let Some(p) = input.pop() {output.push(p); }
+        }
+        
+        input.push(symbol)
 
-    while input.last().is_some_and(|o| operator_priority(o).is_some_and(|p| p <= priority) ) &&
-    !input.last().is_some_and(|s| matches!(s, AlgebraSymbol::Grouping(_))){
-        output.push(input.pop().unwrap());
     }
-    
-    input.push(symbol)
 }
 
 fn pop_until_paren(operators: &mut Vec<AlgebraSymbol>, output: &mut Vec<AlgebraSymbol>) {
     while !matches!(operators.last(), Some(AlgebraSymbol::Grouping(_))) && !operators.is_empty() {
-        output.push(operators.pop().unwrap());
+        if let Some(p) = operators.pop() {output.push(p); }
     }
 
     if matches!(operators.last(), Some(AlgebraSymbol::Grouping(_))) {
