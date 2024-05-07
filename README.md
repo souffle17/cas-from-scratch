@@ -9,6 +9,9 @@ This was made for fun/my own learning
 - [Implicit graphing of equations](#graphing)
 - [Simplifying expressions](#simplification)
 
+
+![cargo file](img.png)
+
 #### Expressions
 This uses an entirely custom expression parser, so it may be more barebones than other CAS implementations
 
