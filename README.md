@@ -126,7 +126,7 @@ y scale (default 1.0): 0.3
 ```
 
 ## Simplification
-This function is partially working, and currently combines all constant values
+This function is still WIP, and currently attempts to combines all constant values
 
 ### Example
 ```
