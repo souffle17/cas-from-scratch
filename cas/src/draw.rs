@@ -11,7 +11,7 @@ pub fn point_check(left_expression: Option<&NumberNode>, right_expression: Optio
     }
     else {
 
-        let mut fov: [(f64, f64); 9] = [(f64::NAN, f64::NAN), 
+        let mut kernel: [(f64, f64); 9] = [(f64::NAN, f64::NAN), 
             (f64::NAN, f64::NAN), 
             (f64::NAN, f64::NAN), 
             (f64::NAN, f64::NAN), 
@@ -32,7 +32,7 @@ pub fn point_check(left_expression: Option<&NumberNode>, right_expression: Optio
         let mut index = 0;
         for i in -1..2 {
             for j in -1..2 {
-                fov[index] = (left_expression.resolve(&(x + (j as f64*x_scale)), &(y + (i as f64*y_scale))), 
+                kernel[index] = (left_expression.resolve(&(x + (j as f64*x_scale)), &(y + (i as f64*y_scale))), 
                     right_expression.resolve(&(x + (j as f64*x_scale)), &(y + (i as f64*y_scale))));
                 index += 1;
             }
@@ -43,7 +43,7 @@ pub fn point_check(left_expression: Option<&NumberNode>, right_expression: Optio
         // check for intersection
         for n in 0..4 {
             pass = pass || (
-                (fov[n].0 - fov[n].1 > 0.0) != (fov[8-n].0 - fov[8-n].1 > 0.0)
+                (kernel[n].0 - kernel[n].1 > 0.0) != (kernel[8-n].0 - kernel[8-n].1 > 0.0)
             );
         }
 
