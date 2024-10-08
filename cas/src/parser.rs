@@ -1,9 +1,11 @@
-use crate::compute::{ConstantOrVariable, DualNode, DualOperation, NumberNode, NumberOrOperation, SingleOperation};
+use crate::compute::{
+    ConstantOrVariable, DualNode, DualOperation, NumberNode, NumberOrOperation, SingleOperation,
+};
 
 #[derive(Debug, Clone)]
 pub enum OpeningOrClosing {
     Opening,
-    Closing
+    Closing,
 }
 
 #[derive(Debug, Clone)]
@@ -12,7 +14,7 @@ pub enum AlgebraSymbol {
     Number(ConstantOrVariable),
     Variable(ConstantOrVariable),
     Dual(DualOperation),
-    Single(SingleOperation)
+    Single(SingleOperation),
 }
 
 fn match_operator(input: &str) -> AlgebraSymbol {
@@ -40,49 +42,40 @@ fn match_operator(input: &str) -> AlgebraSymbol {
         "^" => AlgebraSymbol::Dual(DualOperation::Exp),
         "log" => AlgebraSymbol::Dual(DualOperation::Log),
 
-        _ => AlgebraSymbol::Number(ConstantOrVariable::Nan)
-        
+        _ => AlgebraSymbol::Number(ConstantOrVariable::Nan),
     }
 }
 
 fn symbol_to_string(input: AlgebraSymbol) -> String {
     match input {
-        AlgebraSymbol::Single(op) => {
-            match op {
-                SingleOperation::Sin => "sin".to_string(),
-                SingleOperation::Cos => "cos".to_string(),
-                SingleOperation::Tan => "tan".to_string(),
-                SingleOperation::Abs => "abs".to_string(),
-                SingleOperation::Sqrt => "sqrt".to_string()
-            }
-        }
+        AlgebraSymbol::Single(op) => match op {
+            SingleOperation::Sin => "sin".to_string(),
+            SingleOperation::Cos => "cos".to_string(),
+            SingleOperation::Tan => "tan".to_string(),
+            SingleOperation::Abs => "abs".to_string(),
+            SingleOperation::Sqrt => "sqrt".to_string(),
+        },
 
-        AlgebraSymbol::Grouping(paren) => {
-            match paren {
-                OpeningOrClosing::Opening => "(".to_string(),
-                OpeningOrClosing::Closing => ")".to_string()
-            }
-        }
+        AlgebraSymbol::Grouping(paren) => match paren {
+            OpeningOrClosing::Opening => "(".to_string(),
+            OpeningOrClosing::Closing => ")".to_string(),
+        },
 
-        AlgebraSymbol::Dual(dual) => {
-            match dual {
-                DualOperation::Plus => "+".to_string(),
-                DualOperation::Minus => "-".to_string(),
-                DualOperation::Multiply => "*".to_string(),
-                DualOperation::Divide => "/".to_string(),
-                DualOperation::Exp => "^".to_string(),
-                DualOperation::Log => "log".to_string()
-            }
-        }
+        AlgebraSymbol::Dual(dual) => match dual {
+            DualOperation::Plus => "+".to_string(),
+            DualOperation::Minus => "-".to_string(),
+            DualOperation::Multiply => "*".to_string(),
+            DualOperation::Divide => "/".to_string(),
+            DualOperation::Exp => "^".to_string(),
+            DualOperation::Log => "log".to_string(),
+        },
 
-        AlgebraSymbol::Number(n) | AlgebraSymbol::Variable(n) => {
-            match n {
-                ConstantOrVariable::Constant(n) => n.to_string(),
-                ConstantOrVariable::XVariable => "x".to_string(),
-                ConstantOrVariable::YVariable => "y".to_string(),
-                ConstantOrVariable::Nan => "Nan".to_string()
-            }
-        }
+        AlgebraSymbol::Number(n) | AlgebraSymbol::Variable(n) => match n {
+            ConstantOrVariable::Constant(n) => n.to_string(),
+            ConstantOrVariable::XVariable => "x".to_string(),
+            ConstantOrVariable::YVariable => "y".to_string(),
+            ConstantOrVariable::Nan => "Nan".to_string(),
+        },
     }
 }
 
@@ -95,18 +88,20 @@ pub fn string_vec_to_symbol_vec(input: &Vec<String>) -> Vec<AlgebraSymbol> {
         } else if let Some(c) = segment.chars().last() {
             match c {
                 //variables
-                'x' | 'y' => if let Ok(n) = str::parse::<f64>(&segment[..segment.len()-1]) {
+                'x' | 'y' => {
+                    if let Ok(n) = str::parse::<f64>(&segment[..segment.len() - 1]) {
                         symbol_vec.push(AlgebraSymbol::Number(ConstantOrVariable::Constant(n)));
                         symbol_vec.push(AlgebraSymbol::Dual(DualOperation::Multiply));
                         symbol_vec.push(match_operator(&c.to_string()));
-                    }
-                    else {
+                    } else {
                         if segment.starts_with('-') {
-                            symbol_vec.push(AlgebraSymbol::Number(ConstantOrVariable::Constant(-1.0)));
+                            symbol_vec
+                                .push(AlgebraSymbol::Number(ConstantOrVariable::Constant(-1.0)));
                             symbol_vec.push(AlgebraSymbol::Dual(DualOperation::Multiply));
                         }
                         symbol_vec.push(match_operator(&c.to_string()));
-                    },
+                    }
+                }
                 _ => {
                     if let Ok(n) = str::parse::<f64>(segment) {
                         symbol_vec.push(AlgebraSymbol::Number(ConstantOrVariable::Constant(n)))
@@ -114,8 +109,7 @@ pub fn string_vec_to_symbol_vec(input: &Vec<String>) -> Vec<AlgebraSymbol> {
                         symbol_vec.push(AlgebraSymbol::Number(ConstantOrVariable::Constant(-1.0)));
                         symbol_vec.push(AlgebraSymbol::Dual(DualOperation::Multiply));
                         symbol_vec.push(match_operator(&segment[1..segment.len()]));
-                    }
-                    else {
+                    } else {
                         symbol_vec.push(match_operator(segment));
                     }
                 }
@@ -124,40 +118,41 @@ pub fn string_vec_to_symbol_vec(input: &Vec<String>) -> Vec<AlgebraSymbol> {
     }
 
     symbol_vec
-    
 }
 
 fn operator_priority(symbol: &AlgebraSymbol) -> Option<i32> {
     match symbol {
         AlgebraSymbol::Single(_) => Some(0),
-        AlgebraSymbol::Dual(op) => {
-            match op {
-                DualOperation::Exp | DualOperation::Log => Some(1),
-                DualOperation::Multiply | DualOperation::Divide => Some(2),
-                DualOperation::Plus | DualOperation::Minus => Some(3),
-            }
-        }
-        _ => None //this shouldn't be reached
+        AlgebraSymbol::Dual(op) => match op {
+            DualOperation::Exp | DualOperation::Log => Some(1),
+            DualOperation::Multiply | DualOperation::Divide => Some(2),
+            DualOperation::Plus | DualOperation::Minus => Some(3),
+        },
+        _ => None, //this shouldn't be reached
     }
 }
 
-fn operator_insert(input: &mut Vec<AlgebraSymbol>, output: &mut Vec<AlgebraSymbol>, symbol: AlgebraSymbol) {
+fn operator_insert(
+    input: &mut Vec<AlgebraSymbol>,
+    output: &mut Vec<AlgebraSymbol>,
+    symbol: AlgebraSymbol,
+) {
     let priority = operator_priority(&symbol);
 
     if let Some(priority) = priority {
-
-        while input.last().is_some_and(|o| 
-            operator_priority(o).is_some_and(
-                |p| p <= priority) ) &&
-                    !input.last().is_some_and(
-                        |s| matches!(s, AlgebraSymbol::Grouping(_))) {
+        while input
+            .last()
+            .is_some_and(|o| operator_priority(o).is_some_and(|p| p <= priority))
+            && !input
+                .last()
+                .is_some_and(|s| matches!(s, AlgebraSymbol::Grouping(_)))
+        {
             if let Some(p) = input.pop() {
                 output.push(p);
             }
         }
-        
-        input.push(symbol)
 
+        input.push(symbol)
     }
 }
 
@@ -183,7 +178,9 @@ pub fn generate_tree(input: Vec<AlgebraSymbol>) -> Option<NumberNode> {
     for symbol in input {
         match symbol {
             AlgebraSymbol::Grouping(OpeningOrClosing::Opening) => operators.push(symbol),
-            AlgebraSymbol::Grouping(OpeningOrClosing::Closing) => pop_until_paren(&mut operators, &mut postfix),
+            AlgebraSymbol::Grouping(OpeningOrClosing::Closing) => {
+                pop_until_paren(&mut operators, &mut postfix)
+            }
             AlgebraSymbol::Number(_) => postfix.push(symbol),
             AlgebraSymbol::Variable(_) => postfix.push(symbol),
             AlgebraSymbol::Dual(_) => operator_insert(&mut operators, &mut postfix, symbol),
@@ -192,24 +189,34 @@ pub fn generate_tree(input: Vec<AlgebraSymbol>) -> Option<NumberNode> {
     }
 
     pop_until_paren(&mut operators, &mut postfix);
-    
+
     let mut numbers: Vec<NumberNode> = Vec::new();
 
     for symbol in postfix {
         match symbol {
-            AlgebraSymbol::Number(n) |
-            AlgebraSymbol::Variable(n) => numbers.push(NumberNode {value: Some(Box::new(NumberOrOperation::Number(n))), operation: None}),
+            AlgebraSymbol::Number(n) | AlgebraSymbol::Variable(n) => numbers.push(NumberNode {
+                value: Some(Box::new(NumberOrOperation::Number(n))),
+                operation: None,
+            }),
             AlgebraSymbol::Dual(op) => {
                 let second_operand = numbers.pop();
                 let first_operand = numbers.pop();
 
-                let dual_node = DualNode {first_operand, operation: Some(op), second_operand};
-                numbers.push(
-                    NumberNode {value: Some(Box::new(NumberOrOperation::Double(Some(dual_node)))), operation: None}
-                );
+                let dual_node = DualNode {
+                    first_operand,
+                    operation: Some(op),
+                    second_operand,
+                };
+                numbers.push(NumberNode {
+                    value: Some(Box::new(NumberOrOperation::Double(Some(dual_node)))),
+                    operation: None,
+                });
             }
             AlgebraSymbol::Single(op) => {
-                let new_node = NumberNode {value: Some(Box::new(NumberOrOperation::Single(numbers.pop()))), operation: Some(op)};
+                let new_node = NumberNode {
+                    value: Some(Box::new(NumberOrOperation::Single(numbers.pop()))),
+                    operation: Some(op),
+                };
                 numbers.push(new_node);
             }
             _ => {}
@@ -230,7 +237,6 @@ fn split(input: &str) -> Vec<String> {
 }
 
 pub fn generate_tree_from_string(input: &str) -> Option<NumberNode> {
-
     let input_vec = &split(input);
 
     let symbol_vec = string_vec_to_symbol_vec(input_vec);
@@ -261,7 +267,7 @@ pub fn expression_to_string(input: Option<NumberNode>) -> String {
                         output.push(' ');
                         output.push(')');
                     }
-                },
+                }
                 NumberOrOperation::Single(opt_node) => {
                     if let Some(node) = opt_node {
                         if let Some(op) = node.operation.clone() {
@@ -274,11 +280,11 @@ pub fn expression_to_string(input: Option<NumberNode>) -> String {
                             output.push(')');
                         }
                     }
-                },
+                }
                 NumberOrOperation::Number(n) => {
                     let symbol = AlgebraSymbol::Number(n);
                     output.push_str(&symbol_to_string(symbol));
-                },
+                }
             }
         }
     }

@@ -1,20 +1,12 @@
 use crate::compute::{ConstantOrVariable, NumberNode, NumberOrOperation};
 
 fn constant_to_node(constant: f64) -> Option<NumberNode> {
-    Some(
-        NumberNode {
-            value: Some(
-                Box::new(NumberOrOperation::
-                    Number(ConstantOrVariable::
-                        Constant(
-                            constant
-                        )
-                    )
-                )
-            ), 
-            operation: None
-        }
-    )
+    Some(NumberNode {
+        value: Some(Box::new(NumberOrOperation::Number(
+            ConstantOrVariable::Constant(constant),
+        ))),
+        operation: None,
+    })
 }
 
 fn constant_check(tree: Option<NumberNode>) -> Option<NumberNode> {
@@ -26,48 +18,27 @@ fn constant_check(tree: Option<NumberNode>) -> Option<NumberNode> {
                         if let Some(mut dual) = dual {
                             dual.first_operand = constant_check(dual.first_operand);
                             dual.second_operand = constant_check(dual.second_operand);
-                            tree.value = Some(
-                                Box::new(
-                                    NumberOrOperation::Double(
-                                        Some(
-                                            dual
-                                        )
-                                    )
-                                )
-                            );
+                            tree.value = Some(Box::new(NumberOrOperation::Double(Some(dual))));
 
                             Some(tree.clone())
-                        }
-                        else {
+                        } else {
                             None
                         }
-                    },
+                    }
                     NumberOrOperation::Single(node) => {
-                        tree.value = Some(
-                                Box::new(
-                                NumberOrOperation::Single(
-                                    constant_check(node)
-                                )
-                            )
-                        );
+                        tree.value =
+                            Some(Box::new(NumberOrOperation::Single(constant_check(node))));
                         Some(tree.clone())
-                    },
-                    NumberOrOperation::Number(_) => {
-                        Some(tree)
-                    },
+                    }
+                    NumberOrOperation::Number(_) => Some(tree),
                 }
-            }
-            else {
+            } else {
                 None
             }
+        } else {
+            constant_to_node(tree.resolve(&f64::NAN, &f64::NAN))
         }
-        else {
-            constant_to_node(
-                    tree.resolve(&f64::NAN, &f64::NAN)
-            )
-        }
-    }
-    else {
+    } else {
         None
     }
 }
